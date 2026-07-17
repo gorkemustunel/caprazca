@@ -1,0 +1,6 @@
+{
+  "name": "Çaprazca",
+  "description": "Candy Crush ve Duolingo tarzı ilerleme sistemli, İngilizce-Türkçe kelime bulmaca ve öğrenme oyunu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
