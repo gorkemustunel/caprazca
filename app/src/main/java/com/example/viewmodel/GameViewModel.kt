@@ -4,10 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.model.*
+import com.example.data.repository.EconomyConfig
 import com.example.data.repository.GameRepository
 import com.example.data.repository.LevelsData
 import com.example.data.repository.PuzzleResult
 import com.example.data.repository.RewardItem
+import com.example.data.datastore.SettingsManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -28,8 +30,27 @@ sealed interface LevelStartResult {
     data object InvalidLevel : LevelStartResult
 }
 
+sealed interface GameEffect {
+    data class Sound(val key: String) : GameEffect
+    data object Vibration : GameEffect
+}
+
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = GameRepository(application)
+    private val settingsManager = SettingsManager(application)
+
+    private val _gameEffects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 10)
+    val gameEffects = _gameEffects.asSharedFlow()
+
+    // Settings
+    val soundEnabled = settingsManager.soundEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+    
+    val vibrationEnabled = settingsManager.vibrationEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+    
+    val onboardingCompleted = settingsManager.onboardingCompleted
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     // Data Flows from Database
     val progress: StateFlow<UserProgressEntity?> = repository.progressFlow
@@ -61,6 +82,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val learnedCount: StateFlow<Int> = repository.learnedCountFlow
         .map { it ?: 0 }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val isClaimedToday: StateFlow<Boolean> = repository.progressFlow
+        .map { it?.lastDailyRewardClaimDate == repository.getTodayDateString() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val nextAvailableRewardDay: StateFlow<Int> = repository.progressFlow
+        .map { progress ->
+            if (progress == null) return@map 1
+            repository.getNextDailyRewardDay(progress)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
+
+    val wordsToReview: StateFlow<List<WordEntity>> = repository.wordsToReviewFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     // UI States (Closed write access from UI)
     private val _selectedLevelId = MutableStateFlow<Int?>(null)
@@ -96,6 +131,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _gameResult = MutableStateFlow<PuzzleResult?>(null)
     val gameResult: StateFlow<PuzzleResult?> = _gameResult.asStateFlow()
+
+    // Reaction Events
+    private val _reactionEvent = MutableSharedFlow<DinoReactionEvent>(extraBufferCapacity = 1)
+    val reactionEvent = _reactionEvent.asSharedFlow()
+
+    private val _currentStreak = MutableStateFlow(0)
+    val currentStreak = _currentStreak.asStateFlow()
 
     // Dictionary UI States
     private val _searchQuery = MutableStateFlow("")
@@ -188,8 +230,26 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     return@launch
                 }
 
+                // Calculate layout on background thread if needed
+                val dictionary = repository.dictionaryFlow.first().associateBy { it.id.lowercase(java.util.Locale.ENGLISH) }
+                val calculatedWords = if (level.words.isEmpty()) {
+                    com.example.data.repository.CrosswordLayoutEngine.generateLayout(level.id, level.wordIds, dictionary)
+                } else {
+                    level.words
+                }
+                
+                if (calculatedWords.isEmpty()) {
+                    android.util.Log.e("GameViewModel", "CRITICAL: No words generated for level ${level.id}")
+                }
+
+                val levelWithLayout = level.copy(words = calculatedWords)
+
+                // Force UI update by setting activeLevel correctly
+                _activeLevel.value = levelWithLayout
+                _selectedLevelId.value = level.id
+
                 // Initialize Game Session states
-                startGameSession(levelId)
+                initGameSessionStates(levelWithLayout)
 
                 _startLevelResult.value = LevelStartResult.Started
             } finally {
@@ -198,13 +258,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // Session Management
-    fun startGameSession(levelId: Int) {
+    private fun initGameSessionStates(level: PuzzleLevel) {
         stopTimer()
-
-        val level = LevelsData.getLevels().find { it.id == levelId } ?: return
-        _selectedLevelId.value = levelId
-        _activeLevel.value = level
 
         // Reset game state
         _enteredLetters.value = emptyMap()
@@ -214,6 +269,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _timeElapsed.value = 0
         _isGameFinished.value = false
         _gameResult.value = null
+        _currentStreak.value = 0
         registeredSolvedWordIds.clear()
         lastWrongAttemptByWordId.clear()
 
@@ -228,6 +284,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         startTimer()
+    }
+
+    fun startGameSession(levelId: Int) {
+        val level = LevelsData.getLevels().find { it.id == levelId } ?: return
+        val dictionary = com.example.data.repository.DictionaryData.getPreloadedWords()
+            .associateBy { it.id.lowercase(java.util.Locale.ENGLISH) }
+        val calculatedWords = if (level.words.isEmpty()) {
+            com.example.data.repository.CrosswordLayoutEngine.generateLayout(level.id, level.wordIds, dictionary)
+        } else {
+            level.words
+        }
+        val levelWithLayout = level.copy(words = calculatedWords)
+        _activeLevel.value = levelWithLayout
+        _selectedLevelId.value = level.id
+        initGameSessionStates(levelWithLayout)
     }
 
     fun restartGameSession() {
@@ -248,6 +319,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _timeElapsed.value = 0
         _isGameFinished.value = false
         _gameResult.value = null
+        _currentStreak.value = 0
         registeredSolvedWordIds.clear()
         lastWrongAttemptByWordId.clear()
 
@@ -281,6 +353,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 isBoss = level.isBoss
             )
             _gameResult.value = result
+            
+            // Emit completion event for Dino reaction
+            _reactionEvent.emit(DinoReactionEvent.LevelCompleted(stars, result.xpEarned))
+            _gameEffects.emit(GameEffect.Sound("level_complete"))
+            if (stars >= 2) _gameEffects.emit(GameEffect.Sound("star_earned"))
+            if (result.coinsEarned > 0) _gameEffects.emit(GameEffect.Sound("coin_earned"))
         }
     }
 
@@ -367,12 +445,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         // Spend coin validation
         val progressVal = progress.value ?: return
-        if (progressVal.coins < 15) return
+        if (progressVal.coins < EconomyConfig.LETTER_HINT_COST) return
 
         _isHintProcessing.value = true
         viewModelScope.launch {
             try {
-                val success = repository.spendCoins(15) // Letter hint costs 15 coins
+                val success = repository.spendCoins(EconomyConfig.LETTER_HINT_COST)
                 if (success) {
                     _hintsUsed.value += 1
                     val updatedLetters = _enteredLetters.value.toMutableMap()
@@ -401,12 +479,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         val progressVal = progress.value ?: return
-        if (progressVal.coins < 50) return
+        if (progressVal.coins < EconomyConfig.WORD_HINT_COST) return
 
         _isHintProcessing.value = true
         viewModelScope.launch {
             try {
-                val success = repository.spendCoins(50) // Full word reveal costs 50 coins
+                val success = repository.spendCoins(EconomyConfig.WORD_HINT_COST)
                 if (success) {
                     _hintsUsed.value += 1
                     val updatedLetters = _enteredLetters.value.toMutableMap()
@@ -480,6 +558,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         val updatedLetters = _enteredLetters.value.toMutableMap()
         updatedLetters[cell] = char.uppercaseChar()
         _enteredLetters.value = updatedLetters
+        
+        viewModelScope.launch {
+            _gameEffects.emit(GameEffect.Sound("correct_letter"))
+        }
 
         // Move to next cell in word direction, skipping locked cells
         val nextCell = findNextEditableCell(cell, crosswordWord)
@@ -599,7 +681,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     updatedCorrect.add(crosswordWord.wordId)
                     _correctWords.value = updatedCorrect
 
+                    // Streak and Reaction
+                    _currentStreak.value += 1
+                    val streak = _currentStreak.value
                     viewModelScope.launch {
+                        if (streak == 3 || streak == 5 || streak == 10) {
+                            _reactionEvent.emit(DinoReactionEvent.StreakReached(streak))
+                        } else {
+                            _reactionEvent.emit(DinoReactionEvent.CorrectAnswer)
+                        }
+                        _gameEffects.emit(GameEffect.Sound("word_complete"))
+                        _gameEffects.emit(GameEffect.Vibration)
                         repository.registerWordSolved(crosswordWord.wordId, true, solveMethod)
                         checkPuzzleCompletionState()
                     }
@@ -610,7 +702,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 if (previousWrong != enteredString) {
                     lastWrongAttemptByWordId[crosswordWord.wordId] = enteredString
                     _errorsCount.value += 1
+                    
+                    // Reset streak and emit wrong answer event
+                    _currentStreak.value = 0
                     viewModelScope.launch {
+                        _reactionEvent.emit(DinoReactionEvent.WrongAnswer)
+                        _gameEffects.emit(GameEffect.Sound("wrong_letter"))
+                        _gameEffects.emit(GameEffect.Vibration)
                         repository.registerWordSolved(crosswordWord.wordId, false, solveMethod)
                     }
                 }
@@ -665,9 +763,15 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Restores heart
-    fun buyHeart() {
+    fun buyHeart(onResult: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
-            repository.buyHeart()
+            onResult(repository.buyHeart())
+        }
+    }
+
+    fun claimFreeDailyHeart(onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            onResult(repository.claimFreeDailyHeart())
         }
     }
 
@@ -679,9 +783,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Claim 7-day reward
-    fun claimDailyReward(day: Int) {
+    fun claimDailyReward(day: Int, onResult: (DailyRewardResult) -> Unit = {}) {
         viewModelScope.launch {
-            repository.claimDailyLoginReward()
+            onResult(repository.claimDailyLoginReward())
         }
     }
 
@@ -705,6 +809,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updateWordReview(wordId: String, isCorrect: Boolean) {
+        viewModelScope.launch {
+            repository.updateWordReview(wordId, isCorrect)
+        }
+    }
+
     // Profile updates
     fun updateProfile(username: String, avatar: String) {
         viewModelScope.launch {
@@ -723,6 +833,40 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.markAllNotificationsRead()
         }
+    }
+
+    fun markEvolutionAsSeen(onComplete: () -> Unit = {}) {
+        viewModelScope.launch {
+            repository.markEvolutionAsSeen()
+            onComplete()
+        }
+    }
+
+    fun renameDino(newName: String) {
+        viewModelScope.launch {
+            repository.renameDino(newName)
+        }
+    }
+
+    fun finishHatchingDialog(newName: String, onComplete: () -> Unit = {}) {
+        viewModelScope.launch {
+            repository.renameDino(newName)
+            repository.markEvolutionAsSeen()
+            onComplete()
+        }
+    }
+
+    // Settings Updaters
+    fun setSoundEnabled(enabled: Boolean) {
+        viewModelScope.launch { settingsManager.setSoundEnabled(enabled) }
+    }
+
+    fun setVibrationEnabled(enabled: Boolean) {
+        viewModelScope.launch { settingsManager.setVibrationEnabled(enabled) }
+    }
+
+    fun setOnboardingCompleted(completed: Boolean) {
+        viewModelScope.launch { settingsManager.setOnboardingCompleted(completed) }
     }
 
     // Reset whole game

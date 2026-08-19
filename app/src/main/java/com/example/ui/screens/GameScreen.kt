@@ -1,9 +1,11 @@
-package com.example.ui.screens
+﻿package com.example.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,11 +17,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -27,12 +32,14 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.data.model.CrosswordWord
 import com.example.data.model.PuzzleLevel
 import com.example.data.model.CrosswordDirection
+import com.example.data.repository.EconomyConfig
 import com.example.data.repository.PuzzleResult
 import com.example.viewmodel.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.launch
 import com.example.ui.theme.*
 import com.example.viewmodel.GameViewModel
+import com.example.data.model.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,6 +58,7 @@ fun GameScreen(
     val timeElapsed by viewModel.timeElapsed.collectAsState()
     val isGameFinished by viewModel.isGameFinished.collectAsState()
     val gameResult by viewModel.gameResult.collectAsState()
+    val completedCount by viewModel.completedCount.collectAsState()
 
     val startLevelResult by viewModel.startLevelResult.collectAsState()
     LaunchedEffect(startLevelResult) {
@@ -65,6 +73,9 @@ fun GameScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var showExitDialog by remember { mutableStateOf(false) }
+
+    var pendingActionAfterEvolution by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var showEvolutionByDinoDialog by remember { mutableStateOf(false) }
 
     // Intercept back button to show exit dialog
     BackHandler(enabled = !isGameFinished) {
@@ -159,156 +170,105 @@ fun GameScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            // Gameplay Stats Bar (Errors, Coins, Help actions)
-            Row(
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
             ) {
-                // Error count
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.1f)),
-                    border = BorderStroke(1.dp, ErrorRed.copy(alpha = 0.3f))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.BugReport,
-                            contentDescription = "Hatalar",
-                            tint = ErrorRed,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "Hata: $errorsCount",
-                            color = ErrorRed,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+            CompactGameStatsBar(
+                errorsCount = errorsCount,
+                coins = progress?.coins ?: 0,
+                hintsUsed = hintsUsed
+            )
 
-                // Balance display
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Filled.MonetizationOn,
-                        contentDescription = "Jeton",
-                        tint = GoldenAmber,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "${progress?.coins ?: 0}",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 15.sp
-                    )
-                }
-
-                // Quick Hint buy buttons
-                Row {
-                    // Reveal letter
-                    TextButton(
-                        onClick = {
-                            val coins = progress?.coins ?: 0
-                            if (coins < 15) {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Yetersiz Jeton! Harf ipucu için 15 jeton gerekiyor.")
-                                }
-                            } else {
-                                viewModel.revealSelectedCell()
-                            }
-                        },
-                        colors = ButtonDefaults.textButtonColors(contentColor = EmeraldGreen),
-                        modifier = Modifier.height(32.dp)
-                    ) {
-                        Icon(Icons.Filled.Lightbulb, contentDescription = null, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Text("Harf Al (15 🪙)", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    // Reveal full word
-                    TextButton(
-                        onClick = {
-                            val coins = progress?.coins ?: 0
-                            if (coins < 50) {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Yetersiz Jeton! Kelime çözümü için 50 jeton gerekiyor.")
-                                }
-                            } else {
-                                viewModel.revealActiveWord()
-                            }
-                        },
-                        colors = ButtonDefaults.textButtonColors(contentColor = GoldenAmber),
-                        modifier = Modifier.height(32.dp)
-                    ) {
-                        Icon(Icons.Filled.Key, contentDescription = null, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Text("Kelime Çöz (50 🪙)", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-
-            // Real Crossword Board view (pannable/scrollable viewport structure for small devices)
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
-                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp)),
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(14.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Box(
+                BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxSize()
-                        .horizontalScroll(rememberScrollState())
-                        .verticalScroll(rememberScrollState())
-                        .padding(24.dp),
+                        .padding(horizontal = 14.dp, vertical = 18.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    CrosswordBoard(
-                        gridRows = gridRows,
-                        gridCols = gridCols,
-                        level = level,
-                        enteredLetters = enteredLetters,
-                        correctWords = correctWords,
-                        selectedCell = selectedCell,
-                        selectedWordId = selectedWordId,
-                        onCellClick = { row, col -> viewModel.selectCell(row, col) }
-                    )
+                    val fitWidth = ((maxWidth - 24.dp) / gridCols.coerceAtLeast(1)).coerceIn(26.dp, 40.dp)
+                    val fitHeight = ((maxHeight - 24.dp) / gridRows.coerceAtLeast(1)).coerceIn(26.dp, 40.dp)
+                    val adaptiveCellSize = if (fitWidth < fitHeight) fitWidth else fitHeight
+
+                    Box(
+                        modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .verticalScroll(rememberScrollState()),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CrosswordBoard(
+                            gridRows = gridRows,
+                            gridCols = gridCols,
+                            level = level,
+                            enteredLetters = enteredLetters,
+                            correctWords = correctWords,
+                            errorsCount = errorsCount,
+                            selectedCell = selectedCell,
+                            selectedWordId = selectedWordId,
+                            cellSize = adaptiveCellSize,
+                            onCellClick = { row, col -> viewModel.selectCell(row, col) }
+                        )
+                    }
                 }
+
+                DinoReactionController(
+                    reactionEvent = viewModel.reactionEvent,
+                    stage = DinoStage.safeValueOf(progress?.dinoStage ?: "EGG"),
+                    completedLevels = completedCount,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 4.dp, bottom = 4.dp)
+                )
             }
 
-            // Bottom Info panel & Keyboard
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    .padding(bottom = 12.dp)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(bottom = 10.dp)
             ) {
-                // Active Clue Box
                 ActiveClueDisplay(
                     level = level,
                     selectedWordId = selectedWordId,
                     correctWords = correctWords,
                     onWordToggle = { viewModel.toggleWordDirection() },
                     onPrevWord = { selectRelativeWord(level, selectedWordId, -1, viewModel) },
-                    onNextWord = { selectRelativeWord(level, selectedWordId, 1, viewModel) }
+                    onNextWord = { selectRelativeWord(level, selectedWordId, 1, viewModel) },
+                    onRevealLetter = {
+                        val coins = progress?.coins ?: 0
+                        if (coins < EconomyConfig.LETTER_HINT_COST) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Yetersiz Jeton! Harf ipucu için ${EconomyConfig.LETTER_HINT_COST} jeton gerekiyor.")
+                            }
+                        } else {
+                            viewModel.revealSelectedCell()
+                        }
+                    },
+                    onRevealWord = {
+                        val coins = progress?.coins ?: 0
+                        if (coins < EconomyConfig.WORD_HINT_COST) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Yetersiz Jeton! Kelime çözümü için ${EconomyConfig.WORD_HINT_COST} jeton gerekiyor.")
+                            }
+                        } else {
+                            viewModel.revealActiveWord()
+                        }
+                    }
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                // Built-in English keyboard
                 EnglishGameKeyboard(
                     onKeyInput = { viewModel.inputLetter(it) },
                     onDelete = { viewModel.deleteLetter() },
@@ -317,27 +277,147 @@ fun GameScreen(
             }
         }
     }
+}
 
     // Celebration Result dialog
     if (isGameFinished) {
         gameResult?.let { result ->
-            CelebrationResultDialog(
+            val onActionWithEvolutionCheck = { action: () -> Unit ->
+                if (progress?.lastEvolutionSeen?.startsWith("PENDING_") == true) {
+                    pendingActionAfterEvolution = action
+                    showEvolutionByDinoDialog = true
+                } else {
+                    action()
+                }
+            }
+
+            DinoLevelCompletionDialog(
                 level = level,
                 result = result,
                 timeElapsed = timeElapsed,
                 errorsCount = errorsCount,
                 hintsUsed = hintsUsed,
-                onBackToMap = onNavigateBack,
+                currentXp = progress?.xp ?: 0,
+                stage = DinoStage.safeValueOf(progress?.dinoStage ?: "EGG"),
+                completedLevels = completedCount,
+                onBackToMap = { onActionWithEvolutionCheck { onNavigateBack() } },
                 onReplay = { viewModel.requestStartLevel(level.id, LevelStartReason.REPLAY) },
                 onNextLevel = {
-                    val nextId = level.id + 1
-                    if (nextId <= 180) { // Updated to support more levels
-                        viewModel.requestStartLevel(nextId, LevelStartReason.NEXT_LEVEL)
-                    } else {
-                        onNavigateBack()
+                    onActionWithEvolutionCheck {
+                        val nextId = level.id + 1
+                        if (nextId <= 100) {
+                            viewModel.requestStartLevel(nextId, LevelStartReason.NEXT_LEVEL)
+                        } else {
+                            onNavigateBack()
+                        }
                     }
                 }
             )
+        }
+    }
+
+    if (showEvolutionByDinoDialog) {
+        val pendingEvolution = progress?.lastEvolutionSeen
+        val completePendingAction = {
+            val action = pendingActionAfterEvolution
+            pendingActionAfterEvolution = null
+            showEvolutionByDinoDialog = false
+            action?.invoke()
+        }
+
+        if (pendingEvolution == "PENDING_HATCHING") {
+            DinoHatchingDialog(onNicknameChosen = { nickname ->
+                viewModel.finishHatchingDialog(nickname) {
+                    completePendingAction()
+                }
+            })
+        } else if (pendingEvolution?.startsWith("PENDING_") == true) {
+            val milestone = DinoEvolutionPlan.milestones.firstOrNull { it.pendingKey == pendingEvolution }
+            if (milestone?.stage != null) {
+                DinoEvolutionDialog(
+                    newStage = milestone.stage,
+                    completedLevels = completedCount,
+                    onDismiss = {
+                        viewModel.markEvolutionAsSeen {
+                            completePendingAction()
+                        }
+                    }
+                )
+            } else if (milestone != null) {
+                DinoMilestoneDialog(
+                    milestone = milestone,
+                    stage = DinoStage.safeValueOf(progress?.dinoStage ?: "EGG"),
+                    completedLevels = completedCount,
+                    onDismiss = {
+                        viewModel.markEvolutionAsSeen {
+                            completePendingAction()
+                        }
+                    }
+                )
+            } else {
+                viewModel.markEvolutionAsSeen { completePendingAction() }
+            }
+        } else {
+            completePendingAction()
+        }
+    }
+}
+
+@Composable
+fun CompactGameStatsBar(
+    errorsCount: Int,
+    coins: Int,
+    hintsUsed: Int
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CompactStatChip(
+            icon = Icons.Filled.BugReport,
+            text = "Hata $errorsCount",
+            color = ErrorRed,
+            modifier = Modifier.weight(1f)
+        )
+        CompactStatChip(
+            icon = Icons.Filled.MonetizationOn,
+            text = coins.toString(),
+            color = GoldenAmber,
+            modifier = Modifier.weight(1f)
+        )
+        CompactStatChip(
+            icon = Icons.Filled.Lightbulb,
+            text = "İpucu $hintsUsed",
+            color = EmeraldGreen,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun CompactStatChip(
+    icon: ImageVector,
+    text: String,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.height(30.dp),
+        shape = RoundedCornerShape(10.dp),
+        color = color.copy(alpha = 0.09f),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.22f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(15.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = text, color = color, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold)
         }
     }
 }
@@ -349,8 +429,10 @@ fun CrosswordBoard(
     level: PuzzleLevel,
     enteredLetters: Map<Pair<Int, Int>, Char>,
     correctWords: Set<String>,
+    errorsCount: Int,
     selectedCell: Pair<Int, Int>?,
     selectedWordId: String?,
+    cellSize: Dp,
     onCellClick: (Int, Int) -> Unit
 ) {
     // Generate cell layout map
@@ -376,11 +458,41 @@ fun CrosswordBoard(
         }
         map
     }
+    var flashError by remember { mutableStateOf(false) }
+    val shakeOffset = remember { Animatable(0f) }
+    LaunchedEffect(errorsCount) {
+        if (errorsCount > 0) {
+            flashError = true
+            shakeOffset.snapTo(0f)
+            shakeOffset.animateTo(-7f, tween(45))
+            shakeOffset.animateTo(7f, tween(70))
+            shakeOffset.animateTo(-4f, tween(55))
+            shakeOffset.animateTo(0f, tween(60))
+            kotlinx.coroutines.delay(180)
+            flashError = false
+        }
+    }
+
+    val boardBorderColor by animateColorAsState(
+        targetValue = if (flashError) ErrorRed.copy(alpha = 0.85f) else Color.Transparent,
+        animationSpec = tween(durationMillis = 160),
+        label = "boardErrorFlash"
+    )
 
     Column(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
-            .padding(12.dp),
+            .offset(x = shakeOffset.value.dp)
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(
+                        DinoMint.copy(alpha = 0.08f),
+                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.22f)
+                    )
+                ),
+                RoundedCornerShape(14.dp)
+            )
+            .border(1.5.dp, boardBorderColor, RoundedCornerShape(14.dp))
+            .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -391,15 +503,11 @@ fun CrosswordBoard(
                     val containingWords = cellWordOwnerMap[coord]
 
                     if (containingWords == null) {
-                        // Empty block (black cell) - Now clickable to select nearby words
+                        // Empty space: keep grid rhythm without drawing heavy black blocks.
                         Box(
                             modifier = Modifier
-                                .size(34.dp)
+                                .size(cellSize)
                                 .padding(1.dp)
-                                .background(BlackBlock, RoundedCornerShape(4.dp))
-                                .clickable {
-                                    onCellClick(r, c)
-                                }
                         )
                     } else {
                         // Character input cell
@@ -414,18 +522,43 @@ fun CrosswordBoard(
                             isInsideCorrectWord -> EmeraldGreen.copy(alpha = 0.2f)
                             else -> WordCellBg
                         }
+                        val animatedCellBg by animateColorAsState(
+                            targetValue = cellBgColor,
+                            animationSpec = tween(durationMillis = 220),
+                            label = "crosswordCellBg"
+                        )
+                        val cellScale by animateFloatAsState(
+                            targetValue = when {
+                                isCurrentCell -> 1.08f
+                                isInsideCorrectWord -> 1.02f
+                                else -> 1f
+                            },
+                            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
+                            label = "crosswordCellScale"
+                        )
+                        val cellElevation = when {
+                            isCurrentCell -> 4.dp
+                            isInsideCorrectWord -> 3.dp
+                            else -> 0.dp
+                        }
 
                         val cellBorderColor = when {
                             isCurrentCell -> EmeraldGreen
                             belongsToActiveWord -> GoldenAmber
+                            isInsideCorrectWord -> EmeraldGreen.copy(alpha = 0.55f)
                             else -> Color.LightGray
                         }
 
                         Box(
                             modifier = Modifier
-                                .size(34.dp)
+                                .size(cellSize)
                                 .padding(1.dp)
-                                .background(cellBgColor, RoundedCornerShape(4.dp))
+                                .graphicsLayer {
+                                    scaleX = cellScale
+                                    scaleY = cellScale
+                                }
+                                .shadow(cellElevation, RoundedCornerShape(5.dp), clip = false)
+                                .background(animatedCellBg, RoundedCornerShape(4.dp))
                                 .border(
                                     width = if (isCurrentCell) 2.5.dp else 1.dp,
                                     color = cellBorderColor,
@@ -448,12 +581,20 @@ fun CrosswordBoard(
                             }
 
                             // Render character
-                            Text(
-                                text = if (typedChar != ' ') "$typedChar" else "",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = if (isInsideCorrectWord) DeepEmerald else Color.Black
-                            )
+                            AnimatedContent(
+                                targetState = typedChar,
+                                transitionSpec = {
+                                    fadeIn(tween(90)) + scaleIn(initialScale = 0.7f) togetherWith fadeOut(tween(60))
+                                },
+                                label = "typedLetter"
+                            ) { char ->
+                                Text(
+                                    text = if (char != ' ') "$char" else "",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 16.sp,
+                                    color = if (isInsideCorrectWord) DeepEmerald else Color.Black
+                                )
+                            }
                         }
                     }
                 }
@@ -469,105 +610,140 @@ fun ActiveClueDisplay(
     correctWords: Set<String>,
     onWordToggle: () -> Unit,
     onPrevWord: () -> Unit,
-    onNextWord: () -> Unit
+    onNextWord: () -> Unit,
+    onRevealLetter: () -> Unit,
+    onRevealWord: () -> Unit
 ) {
     val activeWord = level.words.find { it.wordId == selectedWordId } ?: return
     val isSolved = correctWords.contains(activeWord.wordId)
+    val dirText = if (activeWord.direction == CrosswordDirection.HORIZONTAL) "Yatay" else "Dikey"
+    val tagColor = if (activeWord.direction == CrosswordDirection.HORIZONTAL) SkyBlue else GoldenAmber
+    val clueBorder by animateColorAsState(
+        targetValue = if (isSolved) EmeraldGreen.copy(alpha = 0.7f) else tagColor.copy(alpha = 0.35f),
+        animationSpec = tween(220),
+        label = "clueBorder"
+    )
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            .padding(horizontal = 14.dp, vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSolved) EmeraldGreen.copy(alpha = 0.06f) else MaterialTheme.colorScheme.surface
+        ),
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, clueBorder)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = 12.dp, vertical = 10.dp)
         ) {
-            IconButton(onClick = onPrevWord) {
-                Icon(Icons.Filled.ChevronLeft, contentDescription = "Önceki")
-            }
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(onClick = onPrevWord, modifier = Modifier.size(34.dp)) {
+                    Icon(Icons.Filled.ChevronLeft, contentDescription = "Önceki", modifier = Modifier.size(20.dp))
+                }
+
                 Row(
+                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    val dirText = if (activeWord.direction == CrosswordDirection.HORIZONTAL) "Yatay" else "Dikey"
-                    val tagBg = if (activeWord.direction == CrosswordDirection.HORIZONTAL) SkyBlue.copy(alpha = 0.1f) else goldenAmberAlpha()
-                    val tagColor = if (activeWord.direction == CrosswordDirection.HORIZONTAL) SkyBlue else GoldenAmber
-
-                    // Number & direction tag
                     Box(
                         modifier = Modifier
-                            .background(tagBg, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .background(tagColor.copy(alpha = 0.12f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 7.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = "${activeWord.number}. $dirText",
-                            fontSize = 11.sp,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = tagColor
                         )
                     }
-
                     Spacer(modifier = Modifier.width(6.dp))
-
                     Text(
-                        text = "(${activeWord.answerEnglish.length} Harfli)",
-                        fontSize = 11.sp,
+                        text = "${activeWord.answerEnglish.length} harf",
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                     )
-
                     if (isSolved) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Icon(
                             imageVector = Icons.Filled.CheckCircle,
                             contentDescription = "Çözüldü",
                             tint = EmeraldGreen,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(15.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                IconButton(onClick = onWordToggle, modifier = Modifier.size(34.dp)) {
+                    Icon(Icons.Filled.Cached, contentDescription = "Yön Değiştir", tint = SkyBlue, modifier = Modifier.size(19.dp))
+                }
+                IconButton(onClick = onNextWord, modifier = Modifier.size(34.dp)) {
+                    Icon(Icons.Filled.ChevronRight, contentDescription = "Sonraki", modifier = Modifier.size(20.dp))
+                }
+            }
 
-                // Clue head english word
-                Text(
-                    text = "İpucu: \"${activeWord.clueTurkish.uppercase()}\"",
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 17.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
-                )
+            Text(
+                text = if (isSolved) "Tamamlandı" else activeWord.clueTurkish.uppercase(),
+                modifier = Modifier.fillMaxWidth(),
+                fontWeight = FontWeight.Black,
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
 
-                // Clue definition
+            if (activeWord.clueDescriptionTurkish.isNotBlank()) {
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = activeWord.clueDescriptionTurkish,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.68f),
                     textAlign = TextAlign.Center,
                     maxLines = 2
                 )
             }
 
-            Row {
-                IconButton(onClick = onWordToggle) {
-                    Icon(Icons.Filled.Cached, contentDescription = "Yön Değiştir", tint = SkyBlue)
-                }
-                IconButton(onClick = onNextWord) {
-                    Icon(Icons.Filled.ChevronRight, contentDescription = "Sonraki")
+            Spacer(modifier = Modifier.height(8.dp))
+
+            AnimatedVisibility(visible = !isSolved) {
+                Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onRevealLetter,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(38.dp),
+                        shape = RoundedCornerShape(9.dp),
+                        border = BorderStroke(1.dp, EmeraldGreen.copy(alpha = 0.45f)),
+                        contentPadding = PaddingValues(horizontal = 8.dp)
+                    ) {
+                        Icon(Icons.Filled.Lightbulb, contentDescription = null, modifier = Modifier.size(15.dp), tint = EmeraldGreen)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Harf Al · ${EconomyConfig.LETTER_HINT_COST}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = EmeraldGreen)
+                    }
+                    OutlinedButton(
+                        onClick = onRevealWord,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(38.dp),
+                        shape = RoundedCornerShape(9.dp),
+                        border = BorderStroke(1.dp, GoldenAmber.copy(alpha = 0.55f)),
+                        contentPadding = PaddingValues(horizontal = 8.dp)
+                    ) {
+                        Icon(Icons.Filled.Key, contentDescription = null, modifier = Modifier.size(15.dp), tint = GoldenAmber)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Kelime Çöz · ${EconomyConfig.WORD_HINT_COST}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = GoldenAmber)
+                    }
                 }
             }
         }
@@ -601,7 +777,7 @@ fun EnglishGameKeyboard(
         }
         // Row 3 (Contains special actions and remaining characters)
         Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
-            // YÖN action
+            // Direction action
             KeyboardButton(
                 text = "YÖN",
                 weight = 1.3f,
@@ -632,13 +808,25 @@ fun RowScope.KeyboardButton(
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.94f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessHigh),
+        label = "keyPress"
+    )
     Box(
         modifier = Modifier
             .weight(weight)
             .height(38.dp)
-            .background(containerColor, RoundedCornerShape(6.dp))
-            .border(0.5.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))
-            .clickable { onClick() },
+            .graphicsLayer {
+                scaleX = pressScale
+                scaleY = pressScale
+            }
+            .shadow(if (isPressed) 0.dp else 2.dp, RoundedCornerShape(7.dp))
+            .background(containerColor, RoundedCornerShape(7.dp))
+            .border(0.7.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.65f), RoundedCornerShape(7.dp))
+            .clickable(interactionSource = interactionSource, indication = null) { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -664,18 +852,25 @@ fun CelebrationResultDialog(
 ) {
     Dialog(
         onDismissRequest = onBackToMap,
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false
+        )
     ) {
         Card(
             shape = RoundedCornerShape(28.dp),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+                .fillMaxWidth(0.92f)
+                .wrapContentHeight()
+                .padding(vertical = 16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = BorderStroke(2.dp, GoldenAmber)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .padding(horizontal = 24.dp, vertical = 20.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header Crown
@@ -683,29 +878,29 @@ fun CelebrationResultDialog(
                     imageVector = Icons.Filled.EmojiEvents,
                     contentDescription = null,
                     tint = GoldenAmber,
-                    modifier = Modifier.size(72.dp)
+                    modifier = Modifier.size(64.dp)
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = "BÖLÜM TAMAMLANDI!",
-                    fontSize = 20.sp,
+                    fontSize = 19.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = GoldenAmber,
                     textAlign = TextAlign.Center
                 )
                 Text(
                     text = level.title,
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Stars Animation Block
+                // Stars Block
                 Row(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
@@ -718,13 +913,13 @@ fun CelebrationResultDialog(
                             contentDescription = null,
                             tint = if (isFilled) GoldenAmber else Color.Gray.copy(alpha = 0.4f),
                             modifier = Modifier
-                                .size(if (starIdx == 1) 48.dp else 36.dp)
+                                .size(if (starIdx == 1) 42.dp else 32.dp)
                                 .padding(horizontal = 4.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Rewards Card
                 Card(
@@ -734,15 +929,15 @@ fun CelebrationResultDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(14.dp),
+                            .padding(12.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         RewardBadge(name = "Kazanılan XP", value = "+${result.xpEarned} XP", icon = Icons.Filled.AddReaction, color = SkyBlue)
-                        RewardBadge(name = "Kazanılan Jeton", value = "+${result.coinsEarned} 🪙", icon = Icons.Filled.MonetizationOn, color = GoldenAmber)
+                        RewardBadge(name = "Kazanılan Jeton", value = "+${result.coinsEarned}", icon = Icons.Filled.MonetizationOn, color = GoldenAmber)
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Level stats breakdown
                 Row(
@@ -768,13 +963,13 @@ fun CelebrationResultDialog(
                 }
 
                 if (result.didLevelUp) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     Card(
                         colors = CardDefaults.cardColors(containerColor = EmeraldGreen.copy(alpha = 0.15f)),
                         border = BorderStroke(1.dp, EmeraldGreen)
                     ) {
                         Text(
-                            text = "🎉 SEVİYE ATLANDI! 🎉",
+                            text = "SEVİYE ATLANDI!",
                             fontWeight = FontWeight.Bold,
                             color = EmeraldGreen,
                             fontSize = 14.sp,
@@ -783,7 +978,7 @@ fun CelebrationResultDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Action Buttons
                 Button(
@@ -808,7 +1003,7 @@ fun CelebrationResultDialog(
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
-                        Text("Yeniden Oyna", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
+                        Text("Yeniden", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface)
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -821,7 +1016,7 @@ fun CelebrationResultDialog(
                             .height(44.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Haritaya Dön", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Harita", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -854,3 +1049,9 @@ private fun selectRelativeWord(level: PuzzleLevel, currentWordId: String?, offse
 
 @Composable
 fun goldenAmberAlpha() = GoldenAmber.copy(alpha = 0.1f)
+
+fun formatTime(seconds: Int): String {
+    val minutes = seconds / 60
+    val remainingSeconds = seconds % 60
+    return "%02d:%02d".format(minutes, remainingSeconds)
+}

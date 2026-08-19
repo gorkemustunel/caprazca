@@ -31,3 +31,9 @@ val WordCellBg = Color(0xFFFFFFFF)
 val BlackBlock = Color(0xFF222222)
 val GridSelectColor = Color(0xFFE0F2FE) // Very light sky blue
 val GridActiveWordColor = Color(0xFFFEF3C7) // Very light amber
+
+// Dino Theme Colors
+val DinoMint = Color(0xFF27C7A1)
+val DinoBelly = Color(0xFFD9FFF1)
+val DinoSpike = Color(0xFFFF9F1C)
+val EggCream = Color(0xFFFFF9E1)

@@ -31,9 +31,10 @@ object CrosswordLayoutEngine {
         if (result is CrosswordGenerationResult.Success) {
             return result.words
         } else if (result is CrosswordGenerationResult.Failure) {
-            throw IllegalStateException("Failed to generate a valid connected crossword layout for level $levelId: ${result.reason}")
+            android.util.Log.e("CrosswordEngine", "Failed to generate layout for level $levelId: ${result.reason}")
+            return emptyList()
         }
-        throw IllegalStateException("Unknown crossword generation state for level $levelId")
+        return emptyList()
     }
 
     fun generateLayoutResult(
@@ -57,28 +58,26 @@ object CrosswordLayoutEngine {
                     .thenBy { it.id }
             )
 
-            val firstWord = sortedDictWords.first()
-            val remainingWords = sortedDictWords.drop(1)
+            val result = sortedDictWords.mapNotNull { firstWord ->
+                val firstAnswer = firstWord.english.uppercase(Locale.ENGLISH)
+                val firstPlaced = PlacedWord(
+                    wordId = firstWord.id,
+                    answerEnglish = firstAnswer,
+                    clueTurkish = buildPrimaryClue(firstWord),
+                    clueDescriptionTurkish = buildSecondaryClue(firstWord),
+                    row = 0,
+                    col = 0,
+                    direction = CrosswordDirection.HORIZONTAL
+                )
+                val remainingWords = sortedDictWords.filterNot { it.id == firstWord.id }
+                backtrack(remainingWords, listOf(firstPlaced))
+            }.minByOrNull { layoutArea(it) }
 
-            val firstAnswer = firstWord.english.uppercase(Locale.ENGLISH)
-            val firstPlaced = PlacedWord(
-                wordId = firstWord.id,
-                answerEnglish = firstAnswer,
-                clueTurkish = firstWord.turkish.uppercase(Locale.ENGLISH),
-                clueDescriptionTurkish = firstWord.turkishDefinition,
-                row = 0,
-                col = 0,
-                direction = CrosswordDirection.HORIZONTAL
-            )
-
-            val initialPlacedList = listOf(firstPlaced)
-
-            val result = backtrack(remainingWords, initialPlacedList)
             if (result == null) {
                 return CrosswordGenerationResult.Failure(
                     levelId,
-                    "No valid crossword layout could be generated",
-                    remainingWords.map { it.id }
+                    "No connected crossword layout could be generated",
+                    sortedDictWords.map { it.id }
                 )
             }
 
@@ -129,78 +128,157 @@ object CrosswordLayoutEngine {
         val direction: CrosswordDirection
     )
 
+    private data class CandidatePlacement(
+        val word: WordEntity,
+        val placedWord: PlacedWord,
+        val remaining: List<WordEntity>,
+        val intersections: Int,
+        val area: Int
+    )
+
     private fun backtrack(
         remaining: List<WordEntity>,
         placed: List<PlacedWord>
     ): List<PlacedWord>? {
         if (remaining.isEmpty()) {
-            return if (isValidConnectedLayout(placed)) placed else null
+            return placed
         }
 
-        // Try to place any of the remaining words at any possible intersection
-        for (i in remaining.indices) {
-            val candidateWord = remaining[i]
+        val candidates = mutableListOf<CandidatePlacement>()
+
+        for (candidateWord in remaining) {
             val candidateAnswer = candidateWord.english.uppercase(Locale.ENGLISH)
-            val newRemaining = remaining.filterIndexed { index, _ -> index != i }
+            val nextRemaining = remaining.filterNot { it.id == candidateWord.id }
 
             for (placedWord in placed) {
                 for (charIndexInCandidate in candidateAnswer.indices) {
                     val candidateChar = candidateAnswer[charIndexInCandidate]
                     for (charIndexInPlaced in placedWord.answerEnglish.indices) {
                         val placedChar = placedWord.answerEnglish[charIndexInPlaced]
+                        if (candidateChar != placedChar) continue
 
-                        if (candidateChar == placedChar) {
-                            val nextDir = if (placedWord.direction == CrosswordDirection.HORIZONTAL) {
-                                CrosswordDirection.VERTICAL
-                            } else {
-                                CrosswordDirection.HORIZONTAL
-                            }
+                        val nextDir = if (placedWord.direction == CrosswordDirection.HORIZONTAL) {
+                            CrosswordDirection.VERTICAL
+                        } else {
+                            CrosswordDirection.HORIZONTAL
+                        }
 
-                            val placedCharRow = if (placedWord.direction == CrosswordDirection.HORIZONTAL) {
-                                placedWord.row
-                            } else {
-                                placedWord.row + charIndexInPlaced
-                            }
-                            val placedCharCol = if (placedWord.direction == CrosswordDirection.HORIZONTAL) {
-                                placedWord.col + charIndexInPlaced
-                            } else {
-                                placedWord.col
-                            }
+                        val placedCharRow = if (placedWord.direction == CrosswordDirection.HORIZONTAL) {
+                            placedWord.row
+                        } else {
+                            placedWord.row + charIndexInPlaced
+                        }
+                        val placedCharCol = if (placedWord.direction == CrosswordDirection.HORIZONTAL) {
+                            placedWord.col + charIndexInPlaced
+                        } else {
+                            placedWord.col
+                        }
 
-                            val nextStartRow = if (nextDir == CrosswordDirection.HORIZONTAL) {
-                                placedCharRow
-                            } else {
-                                placedCharRow - charIndexInCandidate
-                            }
-                            val nextStartCol = if (nextDir == CrosswordDirection.HORIZONTAL) {
-                                placedCharCol - charIndexInCandidate
-                            } else {
-                                placedCharCol
-                            }
+                        val nextStartRow = if (nextDir == CrosswordDirection.HORIZONTAL) {
+                            placedCharRow
+                        } else {
+                            placedCharRow - charIndexInCandidate
+                        }
+                        val nextStartCol = if (nextDir == CrosswordDirection.HORIZONTAL) {
+                            placedCharCol - charIndexInCandidate
+                        } else {
+                            placedCharCol
+                        }
 
-                            val candidatePlaced = PlacedWord(
-                                wordId = candidateWord.id,
-                                answerEnglish = candidateAnswer,
-                                clueTurkish = candidateWord.turkish.uppercase(Locale.ENGLISH),
-                                clueDescriptionTurkish = candidateWord.turkishDefinition,
-                                row = nextStartRow,
-                                col = nextStartCol,
-                                direction = nextDir
+                        val candidatePlaced = PlacedWord(
+                            wordId = candidateWord.id,
+                            answerEnglish = candidateAnswer,
+                            clueTurkish = buildPrimaryClue(candidateWord),
+                            clueDescriptionTurkish = buildSecondaryClue(candidateWord),
+                            row = nextStartRow,
+                            col = nextStartCol,
+                            direction = nextDir
+                        )
+
+                        if (canPlace(candidatePlaced, placed)) {
+                            val nextPlaced = placed + candidatePlaced
+                            candidates.add(
+                                CandidatePlacement(
+                                    word = candidateWord,
+                                    placedWord = candidatePlaced,
+                                    remaining = nextRemaining,
+                                    intersections = countIntersections(candidatePlaced, placed),
+                                    area = layoutArea(nextPlaced)
+                                )
                             )
-
-                            if (canPlace(candidatePlaced, placed)) {
-                                val nextPlacedList = placed + candidatePlaced
-                                val finalLayout = backtrack(newRemaining, nextPlacedList)
-                                if (finalLayout != null) {
-                                    return finalLayout
-                                }
-                            }
                         }
                     }
                 }
             }
         }
+
+        for (candidate in candidates.sortedWith(compareBy<CandidatePlacement> { it.area }.thenByDescending { it.intersections }.thenBy { it.word.id })) {
+            val result = backtrack(candidate.remaining, placed + candidate.placedWord)
+            if (result != null) return result
+        }
+
         return null
+    }
+
+    private fun layoutArea(words: List<PlacedWord>): Int {
+        if (words.isEmpty()) return 0
+        val minRow = words.minOf { it.row }
+        val minCol = words.minOf { it.col }
+        val maxRow = words.maxOf { if (it.direction == CrosswordDirection.VERTICAL) it.row + it.answerEnglish.length else it.row + 1 }
+        val maxCol = words.maxOf { if (it.direction == CrosswordDirection.HORIZONTAL) it.col + it.answerEnglish.length else it.col + 1 }
+        return (maxRow - minRow) * (maxCol - minCol)
+    }
+
+    private fun countIntersections(candidate: PlacedWord, placed: List<PlacedWord>): Int {
+        val candidateCells = getPlacedWordCells(candidate)
+        return placed.sumOf { other -> candidateCells.count { it in getPlacedWordCells(other) } }
+    }
+
+    private fun buildPrimaryClue(word: WordEntity): String {
+        return word.turkish
+            .split("/", ",", ";", " veya ", " ya da ")
+            .firstOrNull { it.isNotBlank() }
+            ?.trim()
+            ?.replaceFirstChar { char -> char.titlecase(Locale("tr", "TR")) }
+            ?: word.turkish.trim()
+    }
+
+    private fun buildSecondaryClue(word: WordEntity): String {
+        val part = when (word.partOfSpeech) {
+            "verb" -> "Fiil"
+            "adjective" -> "Sıfat"
+            "adverb" -> "Zarf"
+            "interjection" -> "Ünlem"
+            "preposition" -> "Edat"
+            else -> "İsim"
+        }
+        return "$part • ${word.cefrLevel} • ${word.english.length} harf"
+    }
+
+    private fun clueCategory(word: WordEntity): String {
+        return when (word.partOfSpeech) {
+            "verb" -> "Bir eylem."
+            "adjective" -> "Bir özellik bildirir."
+            "adverb" -> "Eylemin nasıl/ne zaman yapıldığını anlatır."
+            "interjection" -> "Kısa bir ifade veya tepki sözü."
+            else -> "Bir nesne, kişi ya da kavram."
+        }
+    }
+
+    private fun revealsAnswer(clue: String, turkishAnswer: String): Boolean {
+        val normalizedClue = clue.normalizeForClueCheck()
+        return turkishAnswer
+            .split("/", ",", ";")
+            .map { it.normalizeForClueCheck() }
+            .filter { it.length >= 3 }
+            .any { answerPart -> normalizedClue.contains(answerPart) }
+    }
+
+    private fun String.normalizeForClueCheck(): String {
+        return lowercase(Locale("tr", "TR"))
+            .replace(Regex("[^a-zçğıöşü0-9 ]"), " ")
+            .replace(Regex("\\s+"), " ")
+            .trim()
     }
 
     private fun canPlace(candidate: PlacedWord, placed: List<PlacedWord>): Boolean {

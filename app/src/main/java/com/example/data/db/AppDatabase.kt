@@ -21,6 +21,9 @@ interface LevelStateDao {
     @Query("SELECT * FROM level_state")
     fun getAllLevelStates(): Flow<List<LevelStateEntity>>
 
+    @Query("SELECT * FROM level_state")
+    suspend fun getAllLevelStatesSync(): List<LevelStateEntity>
+
     @Query("SELECT * FROM level_state WHERE levelId = :id")
     suspend fun getLevelState(id: Int): LevelStateEntity?
 
@@ -42,6 +45,9 @@ interface WordDao {
     @Query("SELECT * FROM word_state WHERE id = :id")
     suspend fun getWordById(id: String): WordEntity?
 
+    @Query("SELECT * FROM word_state")
+    suspend fun getAllWords(): List<WordEntity>
+
     @Query("SELECT * FROM word_state WHERE isFavorite = 1")
     fun getFavoriteWordsFlow(): Flow<List<WordEntity>>
 
@@ -61,13 +67,16 @@ interface WordDao {
     fun getLearnedCountFlow(): Flow<Int?>
 
     @Query("SELECT COUNT(*) FROM word_state")
-    fun getTotalWordsCountFlow(): Flow<Int?>
+    suspend fun getTotalWordsCount(): Int
 }
 
 @Dao
 interface AchievementDao {
     @Query("SELECT * FROM achievement_state")
     fun getAllAchievementsFlow(): Flow<List<AchievementEntity>>
+
+    @Query("SELECT * FROM achievement_state")
+    suspend fun getAllAchievements(): List<AchievementEntity>
 
     @Query("SELECT * FROM achievement_state WHERE id = :id")
     suspend fun getAchievementById(id: String): AchievementEntity?
@@ -86,6 +95,9 @@ interface AchievementDao {
 interface TaskDao {
     @Query("SELECT * FROM task_state")
     fun getAllTasksFlow(): Flow<List<UserTaskEntity>>
+
+    @Query("SELECT * FROM task_state")
+    suspend fun getAllTasks(): List<UserTaskEntity>
 
     @Query("SELECT * FROM task_state WHERE id = :id")
     suspend fun getTaskById(id: String): UserTaskEntity?
@@ -121,7 +133,7 @@ interface NotificationDao {
         UserTaskEntity::class,
         NotificationEntity::class
     ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -144,6 +156,23 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_2_3 = object : androidx.room.migration.Migration(2, 3) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE user_progress ADD COLUMN dinoStage TEXT NOT NULL DEFAULT 'EGG'")
+                db.execSQL("ALTER TABLE user_progress ADD COLUMN dinoNickname TEXT NOT NULL DEFAULT 'Mino'")
+                db.execSQL("ALTER TABLE user_progress ADD COLUMN unlockedDinoStages TEXT NOT NULL DEFAULT 'EGG'")
+                db.execSQL("ALTER TABLE user_progress ADD COLUMN selectedDinoColor TEXT NOT NULL DEFAULT 'default'")
+                db.execSQL("ALTER TABLE user_progress ADD COLUMN selectedAccessory TEXT NOT NULL DEFAULT 'none'")
+                db.execSQL("ALTER TABLE user_progress ADD COLUMN lastEvolutionSeen TEXT NOT NULL DEFAULT 'NONE'")
+            }
+        }
+
+        val MIGRATION_3_4 = object : androidx.room.migration.Migration(3, 4) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE user_progress ADD COLUMN lastFreeHeartClaimDate TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         fun getDatabase(context: android.content.Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -151,7 +180,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "caprazca_database"
                 )
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build()
                 INSTANCE = instance
                 instance

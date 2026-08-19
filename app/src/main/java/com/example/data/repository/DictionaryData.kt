@@ -1,1001 +1,826 @@
-package com.example.data.repository
+﻿package com.example.data.repository
 
 import com.example.data.model.WordEntity
 
 object DictionaryData {
     fun getPreloadedWords(): List<WordEntity> {
-        return listOf(
-            // --- A1 LEVEL ---
-            // Greetings & Basics
-            WordEntity(
-                id = "hello", english = "hello", turkish = "merhaba", partOfSpeech = "interjection", cefrLevel = "A1",
-                englishDefinition = "Used as a greeting when you meet someone.",
-                turkishDefinition = "Biriyle karşılaşıldığında kullanılan selamlama sözü.",
-                exampleSentence = "Hello! How are you doing today?",
-                exampleTranslation = "Merhaba! Bugün nasılsınız?", phonetic = "/həˈləʊ/",
-                synonyms = "hi, hey", antonyms = "bye, goodbye", themes = "greetings, basics"
-            ),
-            WordEntity(
-                id = "goodbye", english = "goodbye", turkish = "hoşçakal", partOfSpeech = "interjection", cefrLevel = "A1",
-                englishDefinition = "Used when someone is leaving.",
-                turkishDefinition = "Biri ayrılırken kullanılan esenlik sözü.",
-                exampleSentence = "Goodbye, see you tomorrow!",
-                exampleTranslation = "Hoşçakal, yarın görüşürüz!", phonetic = "/ˌɡʊdˈbaɪ/",
-                synonyms = "bye, farewell", antonyms = "hello, welcome", themes = "greetings, basics"
-            ),
-            WordEntity(
-                id = "please", english = "please", turkish = "lütfen", partOfSpeech = "adverb", cefrLevel = "A1",
-                englishDefinition = "Used to add politeness to a request.",
-                turkishDefinition = "Bir istekte bulunurken kibarlık katmak için kullanılır.",
-                exampleSentence = "Could you bring me some water, please?",
-                exampleTranslation = "Bana biraz su getirebilir misiniz, lütfen?", phonetic = "/pliːz/",
-                synonyms = "kindly", antonyms = "", themes = "greetings, basics"
-            ),
-            WordEntity(
-                id = "thanks", english = "thanks", turkish = "teşekkürler", partOfSpeech = "interjection", cefrLevel = "A1",
-                englishDefinition = "Used to express gratitude.",
-                turkishDefinition = "Minnettarlığı ifade etmek için kullanılır.",
-                exampleSentence = "Thanks for your help with my homework.",
-                exampleTranslation = "Ödevime yardım ettiğin için teşekkürler.", phonetic = "/θæŋks/",
-                synonyms = "thank you, gratitude", antonyms = "", themes = "greetings, basics"
-            ),
-            WordEntity(
-                id = "welcome", english = "welcome", turkish = "hoşgeldiniz", partOfSpeech = "interjection", cefrLevel = "A1",
-                englishDefinition = "Used to greet someone arriving with pleasure.",
-                turkishDefinition = "Gelen birini memnuniyetle karşılamak için kullanılır.",
-                exampleSentence = "Welcome to our beautiful hotel!",
-                exampleTranslation = "Güzel otelimize hoşgeldiniz!", phonetic = "/ˈwel.kəm/",
-                synonyms = "greeting", antonyms = "farewell", themes = "greetings, basics"
-            ),
-            WordEntity(
-                id = "yes", english = "yes", turkish = "evet", partOfSpeech = "adverb", cefrLevel = "A1",
-                englishDefinition = "Used to express agreement or consent.",
-                turkishDefinition = "Onay veya kabul ifade etmek için kullanılır.",
-                exampleSentence = "Yes, I would love to go with you.",
-                exampleTranslation = "Evet, seninle gitmeyi çok isterim.", phonetic = "/jes/",
-                synonyms = "indeed, sure", antonyms = "no, nay", themes = "greetings, basics"
-            ),
-            WordEntity(
-                id = "no", english = "no", turkish = "hayır", partOfSpeech = "adverb", cefrLevel = "A1",
-                englishDefinition = "Used to express refusal or disagreement.",
-                turkishDefinition = "Red veya uyuşmazlık belirtmek için kullanılır.",
-                exampleSentence = "No, I do not want to watch that film.",
-                exampleTranslation = "Hayır, o filmi izlemek istemiyorum.", phonetic = "/nəʊ/",
-                synonyms = "negative", antonyms = "yes, yea", themes = "greetings, basics"
-            ),
-            WordEntity(
-                id = "sorry", english = "sorry", turkish = "üzgün", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Feeling sad or regretful about a mistake.",
-                turkishDefinition = "Bir hatadan ötürü üzüntü veya pişmanlık duymak.",
-                exampleSentence = "I am sorry for breaking your glass.",
-                exampleTranslation = "Bardağını kırdığım için üzgünüm.", phonetic = "/ˈsɒr.i/",
-                synonyms = "apologetic, regretful", antonyms = "glad", themes = "greetings, basics"
-            ),
-            WordEntity(
-                id = "friend", english = "friend", turkish = "arkadaş", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A person who you know well and like.",
-                turkishDefinition = "Yakından tanınan ve sevilen kimse.",
-                exampleSentence = "He is my best friend from childhood.",
-                exampleTranslation = "O benim çocukluktan en yakın arkadaşım.", phonetic = "/frend/",
-                synonyms = "buddy, companion", antonyms = "enemy, foe", themes = "family, greetings"
-            ),
-            WordEntity(
-                id = "happy", english = "happy", turkish = "mutlu", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Feeling or showing pleasure and contentment.",
-                turkishDefinition = "Memnuniyet ve sevinç duyan veya gösteren.",
-                exampleSentence = "She felt very happy when she passed her exam.",
-                exampleTranslation = "Sınavı geçince kendini çok mutlu hissetti.", phonetic = "/ˈhæp.i/",
-                synonyms = "glad, joyful", antonyms = "sad, unhappy", themes = "feelings"
-            ),
+        val words = mutableListOf<WordEntity>()
 
-            // Family (Aile)
-            WordEntity(
-                id = "family", english = "family", turkish = "aile", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A group of people related by blood or marriage.",
-                turkishDefinition = "Kan bağı veya evlilik yoluyla bağlı insan grubu.",
-                exampleSentence = "I love spending my weekends with my family.",
-                exampleTranslation = "Hafta sonlarımı ailemle geçirmeyi seviyorum.", phonetic = "/ˈfæm.əl.i/",
-                synonyms = "household, relatives", antonyms = "", themes = "family"
-            ),
-            WordEntity(
-                id = "father", english = "father", turkish = "baba", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A male parent.",
-                turkishDefinition = "Erkek ebeveyn.",
-                exampleSentence = "My father works as a high school teacher.",
-                exampleTranslation = "Babam lisede öğretmen olarak çalışıyor.", phonetic = "/ˈfɑː.ðər/",
-                synonyms = "dad, papa", antonyms = "mother", themes = "family"
-            ),
-            WordEntity(
-                id = "mother", english = "mother", turkish = "anne", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A female parent.",
-                turkishDefinition = "Kadın ebeveyn.",
-                exampleSentence = "My mother makes the best chocolate cookies.",
-                exampleTranslation = "Annem en güzel çikolatalı kurabiyeleri yapar.", phonetic = "/ˈmʌð.ər/",
-                synonyms = "mom, mum", antonyms = "father", themes = "family"
-            ),
-            WordEntity(
-                id = "brother", english = "brother", turkish = "erkek kardeş", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A boy or man who shares the same parents.",
-                turkishDefinition = "Aynı anne babaya sahip erkek çocuk veya adam.",
-                exampleSentence = "My brother is three years older than me.",
-                exampleTranslation = "Erkek kardeşim benden üç yaş büyük.", phonetic = "/ˈbrʌð.ər/",
-                synonyms = "sibling", antonyms = "sister", themes = "family"
-            ),
-            WordEntity(
-                id = "sister", english = "sister", turkish = "kız kardeş", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A girl or woman who shares the same parents.",
-                turkishDefinition = "Aynı anne babaya sahip kız çocuk veya kadın.",
-                exampleSentence = "I have one sister who lives in Istanbul.",
-                exampleTranslation = "İstanbul'da yaşayan bir kız kardeşim var.", phonetic = "/ˈsɪs.tər/",
-                synonyms = "sibling", antonyms = "brother", themes = "family"
-            ),
-            WordEntity(
-                id = "son", english = "son", turkish = "oğul", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A person's male child.",
-                turkishDefinition = "Bir kimsenin erkek çocuğu.",
-                exampleSentence = "They are proud of their young son.",
-                exampleTranslation = "Genç oğullarıyla gurur duyuyorlar.", phonetic = "/sʌn/",
-                synonyms = "boy", antonyms = "daughter", themes = "family"
-            ),
-            WordEntity(
-                id = "daughter", english = "daughter", turkish = "kız evlat", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A person's female child.",
-                turkishDefinition = "Bir kimsenin kız çocuğu.",
-                exampleSentence = "Their daughter is studying art at university.",
-                exampleTranslation = "Kızları üniversitede sanat okuyor.", phonetic = "/ˈdɔː.tər/",
-                synonyms = "girl", antonyms = "son", themes = "family"
-            ),
-            WordEntity(
-                id = "child", english = "child", turkish = "çocuk", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A young human being below the age of puberty.",
-                turkishDefinition = "Ergenlik çağına gelmemiş genç insan.",
-                exampleSentence = "The child was playing happily in the garden.",
-                exampleTranslation = "Çocuk bahçede mutlu bir şekilde oynuyordu.", phonetic = "/tʃaɪld/",
-                synonyms = "kid, youngster", antonyms = "adult", themes = "family"
-            ),
-            WordEntity(
-                id = "baby", english = "baby", turkish = "bebek", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A very young child or infant.",
-                turkishDefinition = "Çok küçük çocuk veya süt çocuğu.",
-                exampleSentence = "The baby is sleeping peacefully in the crib.",
-                exampleTranslation = "Bebek beşikte huzurla uyuyor.", phonetic = "/ˈbeɪ.bi/",
-                synonyms = "infant", antonyms = "adult", themes = "family"
-            ),
-            WordEntity(
-                id = "uncle", english = "uncle", turkish = "amca", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "The brother of one's father or mother.",
-                turkishDefinition = "Anne veya babanın erkek kardeşi.",
-                exampleSentence = "My uncle lives on a farm near the city.",
-                exampleTranslation = "Amcam şehrin yakınlarında bir çiftlikte yaşıyor.", phonetic = "/ˈʌŋ.kl̩/",
-                synonyms = "relative", antonyms = "aunt", themes = "family"
-            ),
-
-            // Home & School
-            WordEntity(
-                id = "house", english = "house", turkish = "ev", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A building for human habitation.",
-                turkishDefinition = "İnsanların oturması için yapılmış bina.",
-                exampleSentence = "They live in a beautiful house with a blue door.",
-                exampleTranslation = "Mavi kapılı güzel bir evde yaşıyorlar.", phonetic = "/haʊs/",
-                synonyms = "home, residence", antonyms = "", themes = "home"
-            ),
-            WordEntity(
-                id = "room", english = "room", turkish = "oda", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A part of a building enclosed by walls.",
-                turkishDefinition = "Duvarlarla çevrili bir binanın her bir bölümü.",
-                exampleSentence = "My room is decorated in yellow and green.",
-                exampleTranslation = "Odam sarı ve yeşil renklerde dekore edilmiştir.", phonetic = "/ruːm/",
-                synonyms = "chamber", antonyms = "", themes = "home"
-            ),
-            WordEntity(
-                id = "window", english = "window", turkish = "pencere", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "An opening in a wall to let in light and air.",
-                turkishDefinition = "Işık ve hava girmesi için duvarda bırakılan açıklık.",
-                exampleSentence = "Please open the window, it is hot inside.",
-                exampleTranslation = "Lütfen pencereyi açın, içerisi çok sıcak.", phonetic = "/ˈwɪn.dəʊ/",
-                synonyms = "opening", antonyms = "", themes = "home"
-            ),
-            WordEntity(
-                id = "door", english = "door", turkish = "kapı", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A barrier used to close off an entrance.",
-                turkishDefinition = "Girişi kapatmak için kullanılan bariyer.",
-                exampleSentence = "Knock on the door before you enter the office.",
-                exampleTranslation = "Ofise girmeden önce kapıyı çalın.", phonetic = "/dɔːr/",
-                synonyms = "gate, entry", antonyms = "", themes = "home"
-            ),
-            WordEntity(
-                id = "table", english = "table", turkish = "masa", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A piece of furniture with a flat top and legs.",
-                turkishDefinition = "Düz bir tepesi ve ayakları olan mobilya parçası.",
-                exampleSentence = "Put the plates on the table for dinner.",
-                exampleTranslation = "Akşam yemeği için tabakları masaya koy.", phonetic = "/ˈteɪ.bl̩/",
-                synonyms = "desk", antonyms = "", themes = "home"
-            ),
-            WordEntity(
-                id = "chair", english = "chair", turkish = "sandalye", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A seat for one person, with a back support.",
-                turkishDefinition = "Sırt desteği olan tek kişilik oturacak yer.",
-                exampleSentence = "Sit on the comfortable chair next to the fire.",
-                exampleTranslation = "Ateşin yanındaki rahat sandalyeye oturun.", phonetic = "/tʃeər/",
-                synonyms = "seat, stool", antonyms = "", themes = "home"
-            ),
-            WordEntity(
-                id = "school", english = "school", turkish = "okul", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "An institution for educating children.",
-                turkishDefinition = "Çocukların eğitilmesi için kurulmuş kurum.",
-                exampleSentence = "Children go to school to learn many things.",
-                exampleTranslation = "Çocuklar birçok şey öğrenmek için okula giderler.", phonetic = "/skuːl/",
-                synonyms = "academy", antonyms = "", themes = "school"
-            ),
-            WordEntity(
-                id = "teacher", english = "teacher", turkish = "öğretmen", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A person who teaches, especially in school.",
-                turkishDefinition = "Özellikle okulda eğitim veren kimse.",
-                exampleSentence = "Our teacher explained the lesson clearly today.",
-                exampleTranslation = "Öğretmenimiz bugün konuyu açıkça anlattı.", phonetic = "/ˈtiː.tʃər/",
-                synonyms = "educator, tutor", antonyms = "student, pupil", themes = "school"
-            ),
-            WordEntity(
-                id = "student", english = "student", turkish = "öğrenci", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A person who is studying at school or college.",
-                turkishDefinition = "Okulda veya kolejde okuyan kimse.",
-                exampleSentence = "The university student passed his final exams.",
-                exampleTranslation = "Üniversite öğrencisi final sınavlarını geçti.", phonetic = "/ˈstjuː.dənt/",
-                synonyms = "pupil, learner", antonyms = "teacher, mentor", themes = "school"
-            ),
-            WordEntity(
-                id = "book", english = "book", turkish = "kitap", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A written work that is published in printed format.",
-                turkishDefinition = "Basılı formatta yayınlanan yazılı eser.",
-                exampleSentence = "I love reading an interesting book before sleep.",
-                exampleTranslation = "Uyumadan önce ilginç bir kitap okumayı seviyorum.", phonetic = "/bʊk/",
-                synonyms = "novel, volume", antonyms = "", themes = "school, home"
-            ),
-
-            // Food & Drinks
-            WordEntity(
-                id = "apple", english = "apple", turkish = "elma", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A round fruit with red, green, or yellow skin.",
-                turkishDefinition = "Kırmızı, yeşil veya sarı kabuklu yuvarlak meyve.",
-                exampleSentence = "She eats a sweet red apple every morning.",
-                exampleTranslation = "Her sabah tatlı bir kırmızı elma yer.", phonetic = "/ˈæp.l̩/",
-                synonyms = "fruit", antonyms = "", themes = "food"
-            ),
-            WordEntity(
-                id = "water", english = "water", turkish = "su", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A clear liquid that falls as rain and is essential for life.",
-                turkishDefinition = "Yağmur olarak yağan ve yaşam için gerekli olan berrak sıvı.",
-                exampleSentence = "Drink eight glasses of clean water every day.",
-                exampleTranslation = "Her gün sekiz bardak temiz su için.", phonetic = "/ˈwɔː.tər/",
-                synonyms = "aqua", antonyms = "", themes = "food"
-            ),
-            WordEntity(
-                id = "bread", english = "bread", turkish = "ekmek", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A common food made from flour, water, and yeast baked together.",
-                turkishDefinition = "Un, su ve mayanın birlikte pişirilmesiyle yapılan yaygın yiyecek.",
-                exampleSentence = "I always buy fresh bread from the bakery.",
-                exampleTranslation = "Fırından her zaman taze ekmek alırım.", phonetic = "/bred/",
-                synonyms = "loaf", antonyms = "", themes = "food"
-            ),
-            WordEntity(
-                id = "milk", english = "milk", turkish = "süt", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A white liquid produced by female mammals for feeding their young.",
-                turkishDefinition = "Dişi memelilerin yavrularını beslemek için ürettiği beyaz sıvı.",
-                exampleSentence = "The children drank hot milk before bed.",
-                exampleTranslation = "Çocuklar yatmadan önce sıcak süt içtiler.", phonetic = "/mɪlk/",
-                synonyms = "beverage", antonyms = "", themes = "food"
-            ),
-            WordEntity(
-                id = "tea", english = "tea", turkish = "çay", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A popular hot drink made by infusing dried leaves in water.",
-                turkishDefinition = "Kurutulmuş yaprakların suda demlenmesiyle yapılan popüler sıcak içecek.",
-                exampleSentence = "Turkish tea is usually served in small glasses.",
-                exampleTranslation = "Türk çayı genellikle küçük bardaklarda servis edilir.", phonetic = "/tiː/",
-                synonyms = "brew", antonyms = "", themes = "food"
-            ),
-            WordEntity(
-                id = "coffee", english = "coffee", turkish = "kahve", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A dark hot drink made from roasted and ground beans.",
-                turkishDefinition = "Kavrulmuş ve öğütülmüş çekirdeklerden yapılan koyu sıcak içecek.",
-                exampleSentence = "I cannot start my day without a hot cup of coffee.",
-                exampleTranslation = "Sıcak bir fincan kahve içmeden güne başlayamam.", phonetic = "/ˈkɒf.i/",
-                synonyms = "espresso", antonyms = "", themes = "food"
-            ),
-            WordEntity(
-                id = "cheese", english = "cheese", turkish = "peynir", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A yellow or white food product made from milk.",
-                turkishDefinition = "Sütten yapılan sarı veya beyaz yiyecek ürünü.",
-                exampleSentence = "I put yellow cheese in my morning sandwich.",
-                exampleTranslation = "Sabah sandviçime kaşar peyniri koydum.", phonetic = "/tʃiːz/",
-                synonyms = "dairy product", antonyms = "", themes = "food"
-            ),
-            WordEntity(
-                id = "orange", english = "orange", turkish = "portakal", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A round citrus fruit with sweet orange juice inside.",
-                turkishDefinition = "İçinde tatlı portakal suyu olan yuvarlak bir narenciye meyvesi.",
-                exampleSentence = "Drinking fresh orange juice gives you Vitamin C.",
-                exampleTranslation = "Taze portakal suyu içmek C vitamini sağlar.", phonetic = "/ˈɒr.ɪndʒ/",
-                synonyms = "citrus", antonyms = "", themes = "food"
-            ),
-            WordEntity(
-                id = "meat", english = "meat", turkish = "et", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "The flesh of an animal used as food.",
-                turkishDefinition = "Yiyecek olarak kullanılan hayvan eti.",
-                exampleSentence = "We grilled some delicious meat on the barbecue.",
-                exampleTranslation = "Mangalda lezzetli etler ızgara yaptık.", phonetic = "/miːt/",
-                synonyms = "flesh, beef", antonyms = "vegetable", themes = "food"
-            ),
-            WordEntity(
-                id = "sugar", english = "sugar", turkish = "şeker", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A sweet crystalline substance obtained from sugar cane or sugar beet.",
-                turkishDefinition = "Şeker kamışı veya şeker pancarından elde edilen tatlı kristal madde.",
-                exampleSentence = "Do you take sugar or honey in your tea?",
-                exampleTranslation = "Çayınıza şeker mi bal mı alırsınız?", phonetic = "/ˈʃʊɡ.ər/",
-                synonyms = "sweetener", antonyms = "", themes = "food"
-            ),
-
-            // Time & Days
-            WordEntity(
-                id = "today", english = "today", turkish = "bugün", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "On or during this present day.",
-                turkishDefinition = "İçinde bulunulan günde.",
-                exampleSentence = "Today is the happiest day of my life.",
-                exampleTranslation = "Bugün hayatımın en mutlu günü.", phonetic = "/təˈdeɪ/",
-                synonyms = "current day", antonyms = "yesterday, tomorrow", themes = "time"
-            ),
-            WordEntity(
-                id = "yesterday", english = "yesterday", turkish = "dün", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "On the day before today.",
-                turkishDefinition = "Bugünden bir önceki günde.",
-                exampleSentence = "Yesterday was cold, but today is warm.",
-                exampleTranslation = "Dün soğuktu ama bugün sıcak.", phonetic = "/ˈjes.tə.deɪ/",
-                synonyms = "prior day", antonyms = "today, tomorrow", themes = "time"
-            ),
-            WordEntity(
-                id = "tomorrow", english = "tomorrow", turkish = "yarın", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "On the day after today.",
-                turkishDefinition = "Bugünden bir sonraki günde.",
-                exampleSentence = "Tomorrow we will go on a picnic in the park.",
-                exampleTranslation = "Yarın parkta pikniğe gideceğiz.", phonetic = "/təˈmɒr.əʊ/",
-                synonyms = "next day", antonyms = "yesterday, today", themes = "time"
-            ),
-            WordEntity(
-                id = "night", english = "night", turkish = "gece", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "The time from sunset to sunrise.",
-                turkishDefinition = "Gün batımından gün doğumuna kadar olan süre.",
-                exampleSentence = "Stars shine very brightly during the night.",
-                exampleTranslation = "Yıldızlar gece boyunca çok parlak parlar.", phonetic = "/naɪt/",
-                synonyms = "darkness", antonyms = "day, daytime", themes = "time"
-            ),
-            WordEntity(
-                id = "morning", english = "morning", turkish = "sabah", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "The period of time between dawn and midday.",
-                turkishDefinition = "Şafak ile öğle vakti arasındaki süre.",
-                exampleSentence = "I love the fresh air in the early morning.",
-                exampleTranslation = "Sabahın erken saatlerindeki taze havayı seviyorum.", phonetic = "/ˈmɔː.nɪŋ/",
-                synonyms = "dawn", antonyms = "evening, night", themes = "time"
-            ),
-            WordEntity(
-                id = "week", english = "week", turkish = "hafta", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A period of seven days.",
-                turkishDefinition = "Yedi günlük süre.",
-                exampleSentence = "We have five working days in a week.",
-                exampleTranslation = "Bir haftada beş iş günümüz var.", phonetic = "/wiːk/",
-                synonyms = "seven days", antonyms = "", themes = "time"
-            ),
-            WordEntity(
-                id = "month", english = "month", turkish = "ay", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "One of the twelve periods of time into which a year is divided.",
-                turkishDefinition = "Bir yılın bölündüğü on iki zaman diliminden biri.",
-                exampleSentence = "January is the coldest month of the year.",
-                exampleTranslation = "Ocak, yılın en soğuk ayıdır.", phonetic = "/mʌnθ/",
-                synonyms = "period", antonyms = "", themes = "time"
-            ),
-            WordEntity(
-                id = "year", english = "year", turkish = "yıl", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A period of 365 days (or 366 in a leap year).",
-                turkishDefinition = "365 günlük süre (artık yılda 366).",
-                exampleSentence = "She spent a year studying English in London.",
-                exampleTranslation = "Londra'da İngilizce çalışarak bir yıl geçirdi.", phonetic = "/jɪər/",
-                synonyms = "twelve months", antonyms = "", themes = "time"
-            ),
-            WordEntity(
-                id = "hour", english = "hour", turkish = "saat", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A unit of time equal to 60 minutes.",
-                turkishDefinition = "60 dakikaya eşit olan zaman birimi.",
-                exampleSentence = "The bus ride takes about one hour.",
-                exampleTranslation = "Otobüs yolculuğu yaklaşık bir saat sürüyor.", phonetic = "/aʊər/",
-                synonyms = "sixty minutes", antonyms = "", themes = "time"
-            ),
-            WordEntity(
-                id = "clock", english = "clock", turkish = "saat aygıtı", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "An instrument for measuring and showing time.",
-                turkishDefinition = "Zamanı ölçen ve gösteren cihaz.",
-                exampleSentence = "The clock on the wall shows exactly ten o'clock.",
-                exampleTranslation = "Duvardaki saat tam olarak saat onu gösteriyor.", phonetic = "/klɒk/",
-                synonyms = "watch, timepiece", antonyms = "", themes = "time"
-            ),
-
-            // --- A2 LEVEL ---
-            // City & Transportation
-            WordEntity(
-                id = "city", english = "city", turkish = "şehir", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A large and permanent human settlement.",
-                turkishDefinition = "Büyük ve kalıcı insan yerleşimi.",
-                exampleSentence = "New York is a famous city in America.",
-                exampleTranslation = "New York, Amerika'da ünlü bir şehirdir.", phonetic = "/ˈsɪt.i/",
-                synonyms = "town, metropolis", antonyms = "village, country", themes = "city"
-            ),
-            WordEntity(
-                id = "street", english = "street", turkish = "sokak", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A public road in a city or town, with buildings on side.",
-                turkishDefinition = "Şehir veya kasabada, yanlarında binalar olan halka açık yol.",
-                exampleSentence = "Children were playing football in the quiet street.",
-                exampleTranslation = "Çocuklar sakin sokakta futbol oynuyorlardı.", phonetic = "/striːt/",
-                synonyms = "road, avenue", antonyms = "", themes = "city"
-            ),
-            WordEntity(
-                id = "bridge", english = "bridge", turkish = "köprü", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A structure carrying a road across a river or valley.",
-                turkishDefinition = "Bir yolu bir nehir veya vadinin üzerinden geçiren yapı.",
-                exampleSentence = "We drove across the Bosphorus Bridge in Istanbul.",
-                exampleTranslation = "İstanbul'da Boğaziçi Köprüsü'nün üzerinden geçtik.", phonetic = "/brɪdʒ/",
-                synonyms = "overpass", antonyms = "", themes = "city"
-            ),
-            WordEntity(
-                id = "station", english = "station", turkish = "istasyon", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A stopping place on a railway line where passengers get on.",
-                turkishDefinition = "Yolcuların bindiği demiryolu hattındaki durak yeri.",
-                exampleSentence = "I will meet you outside the train station.",
-                exampleTranslation = "Seninle tren istasyonunun dışında buluşacağım.", phonetic = "/ˈsteɪ.ʃən/",
-                synonyms = "terminal", antonyms = "", themes = "city, transport"
-            ),
-            WordEntity(
-                id = "airport", english = "airport", turkish = "havalimanı", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A complex where airplanes land and take off, with passenger facilities.",
-                turkishDefinition = "Uçakların indiği ve kalktığı yolcu tesislerinin bulunduğu kompleks.",
-                exampleSentence = "Our plane landed at Heathrow Airport in London.",
-                exampleTranslation = "Uçağımız Londra'daki Heathrow Havalimanı'na indi.", phonetic = "/ˈeə.pɔːt/",
-                synonyms = "airfield", antonyms = "", themes = "city, transport"
-            ),
-            WordEntity(
-                id = "bicycle", english = "bicycle", turkish = "bisiklet", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A vehicle with two wheels, propelled by pedals.",
-                turkishDefinition = "Pedallarla hareket ettirilen, iki tekerlekli araç.",
-                exampleSentence = "He rides his bicycle to school every day.",
-                exampleTranslation = "Her gün okula bisikletiyle gidiyor.", phonetic = "/ˈbaɪ.sɪ.kl̩/",
-                synonyms = "bike, cycle", antonyms = "", themes = "transport"
-            ),
-            WordEntity(
-                id = "train", english = "train", turkish = "tren", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A series of connected railway carriages drawn by an engine.",
-                turkishDefinition = "Lokomotif tarafından çekilen birbirine bağlı vagonlar serisi.",
-                exampleSentence = "We travelled to Paris by high-speed train.",
-                exampleTranslation = "Paris'e hızlı trenle seyahat ettik.", phonetic = "/treɪn/",
-                synonyms = "railway", antonyms = "", themes = "transport"
-            ),
-            WordEntity(
-                id = "ticket", english = "ticket", turkish = "bilet", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A printed piece of paper showing you paid for a journey or event.",
-                turkishDefinition = "Bir yolculuk veya etkinlik için ödeme yaptığınızı gösteren basılı kağıt parçası.",
-                exampleSentence = "Show your ticket to the driver when boarding.",
-                exampleTranslation = "Binerken biletinizi sürücüye gösterin.", phonetic = "/ˈtɪk.ɪt/",
-                synonyms = "pass, coupon", antonyms = "", themes = "transport"
-            ),
-            WordEntity(
-                id = "journey", english = "journey", turkish = "yolculuk", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "An act of traveling from one place to another.",
-                turkishDefinition = "Bir yerden başka bir yere seyahat etme eylemi.",
-                exampleSentence = "Have a safe journey to your destination!",
-                exampleTranslation = "Varış noktanıza güvenli bir yolculuk dilerim!", phonetic = "/ˈdʒɜː.ni/",
-                synonyms = "trip, voyage", antonyms = "", themes = "transport"
-            ),
-            WordEntity(
-                id = "tourist", english = "tourist", turkish = "turist", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person who is visiting a place for pleasure or holiday.",
-                turkishDefinition = "Bir yeri keyif veya tatil amacıyla ziyaret eden kimse.",
-                exampleSentence = "The city center was crowded with foreign tourists.",
-                exampleTranslation = "Şehir merkezi yabancı turistlerle doluydu.", phonetic = "/ˈtʊə.rɪst/",
-                synonyms = "visitor, traveler", antonyms = "resident", themes = "city, transport"
-            ),
-
-            // Shops & Shopping (Mağazalar)
-            WordEntity(
-                id = "market", english = "market", turkish = "pazar", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A regular gathering of people for buying and selling provisions.",
-                turkishDefinition = "Yiyecek ve malzeme alıp satmak için insanların düzenli olarak toplandığı yer.",
-                exampleSentence = "We bought fresh tomatoes at the street market.",
-                exampleTranslation = "Sokak pazarından taze domates aldık.", phonetic = "/ˈmɑː.kɪt/",
-                synonyms = "bazaar", antonyms = "", themes = "shopping"
-            ),
-            WordEntity(
-                id = "price", english = "price", turkish = "fiyat", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "The amount of money expected or required as payment for something.",
-                turkishDefinition = "Bir şey için ödeme olarak beklenen veya gereken para miktarı.",
-                exampleSentence = "The price of this gold watch is too high.",
-                exampleTranslation = "Bu altın saatin fiyatı çok yüksek.", phonetic = "/praɪs/",
-                synonyms = "cost, value", antonyms = "", themes = "shopping"
-            ),
-            WordEntity(
-                id = "cheap", english = "cheap", turkish = "ucuz", partOfSpeech = "adjective", cefrLevel = "A2",
-                englishDefinition = "Low in price, costing little money.",
-                turkishDefinition = "Fiyatı düşük, az paraya mal olan.",
-                exampleSentence = "These blue shoes are very cheap and comfortable.",
-                exampleTranslation = "Bu mavi ayakkabılar çok ucuz ve rahat.", phonetic = "/tʃiːp/",
-                synonyms = "inexpensive", antonyms = "expensive, costly", themes = "shopping"
-            ),
-            WordEntity(
-                id = "expensive", english = "expensive", turkish = "pahalı", partOfSpeech = "adjective", cefrLevel = "A2",
-                englishDefinition = "Costing a lot of money.",
-                turkishDefinition = "Çok paraya mal olan.",
-                exampleSentence = "Eating at that French restaurant is very expensive.",
-                exampleTranslation = "O Fransız restoranında yemek yemek çok pahalı.", phonetic = "/ɪkˈspen.sɪv/",
-                synonyms = "costly, high-priced", antonyms = "cheap, inexpensive", themes = "shopping"
-            ),
-            WordEntity(
-                id = "money", english = "money", turkish = "para", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "Current medium of exchange in the form of coins and banknotes.",
-                turkishDefinition = "Madeni para ve banknot şeklindeki mevcut değişim aracı.",
-                exampleSentence = "I did not carry enough money to buy that laptop.",
-                exampleTranslation = "O dizüstü bilgisayarı almak için yanımda yeterli para taşımıyordum.", phonetic = "/ˈmʌn.i/",
-                synonyms = "cash, currency", antonyms = "", themes = "shopping"
-            ),
-            WordEntity(
-                id = "customer", english = "customer", turkish = "müşteri", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person who buys goods or services from a shop.",
-                turkishDefinition = "Bir dükkandan mal veya hizmet alan kimse.",
-                exampleSentence = "The helpful shopkeeper was serving an old customer.",
-                exampleTranslation = "Yardımsever dükkan sahibi yaşlı bir müşteriye hizmet ediyordu.", phonetic = "/ˈkʌs.tə.mər/",
-                synonyms = "buyer, client", antonyms = "seller", themes = "shopping"
-            ),
-            WordEntity(
-                id = "clothes", english = "clothes", turkish = "giysiler", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "Items worn on the body, such as trousers, shirts, and jackets.",
-                turkishDefinition = "Pantolon, gömlek ve ceket gibi vücuda giyilen şeyler.",
-                exampleSentence = "She packed warm clothes for her winter trip.",
-                exampleTranslation = "Kış gezisi için sıcak giysiler paketledi.", phonetic = "/kləʊðz/",
-                synonyms = "garments, apparel", antonyms = "", themes = "shopping"
-            ),
-            WordEntity(
-                id = "wallet", english = "wallet", turkish = "cüzdan", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A small, flat case used to carry cash and bank cards.",
-                turkishDefinition = "Nakit para ve banka kartlarını taşımak için kullanılan küçük, düz çanta.",
-                exampleSentence = "I realized that I left my wallet at home.",
-                exampleTranslation = "Cüzdanımı evde bıraktığımı fark ettim.", phonetic = "/ˈwɒl.ɪt/",
-                synonyms = "purse, pocketbook", antonyms = "", themes = "shopping, basics"
-            ),
-            WordEntity(
-                id = "discount", english = "discount", turkish = "indirim", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A reduction in the usual cost of something.",
-                turkishDefinition = "Bir şeyin normal maliyetindeki azalma.",
-                exampleSentence = "The shop offers a twenty percent discount on coats.",
-                exampleTranslation = "Dükkan, kabanlarda yüzde yirmi indirim sunuyor.", phonetic = "/ˈdɪs.kaʊnt/",
-                synonyms = "reduction, rebate", antonyms = "increase", themes = "shopping"
-            ),
-            WordEntity(
-                id = "gift", english = "gift", turkish = "hediye", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A thing given willingly to someone without payment.",
-                turkishDefinition = "Birine ödeme yapmadan isteyerek verilen şey.",
-                exampleSentence = "They gave me a beautiful gift for my graduation.",
-                exampleTranslation = "Mezuniyetim için bana güzel bir hediye verdiler.", phonetic = "/ɡɪft/",
-                synonyms = "present, donation", antonyms = "", themes = "shopping"
-            ),
-
-            // Jobs (Meslekler)
-            WordEntity(
-                id = "doctor", english = "doctor", turkish = "doktor", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A qualified practitioner of medicine who treats sick people.",
-                turkishDefinition = "Hasta insanları tedavi eden nitelikli tıp uzmanı.",
-                exampleSentence = "The doctor advised her to rest for three days.",
-                exampleTranslation = "Doktor ona üç gün dinlenmesini tavsiye etti.", phonetic = "/ˈdɒk.tər/",
-                synonyms = "physician", antonyms = "patient", themes = "jobs"
-            ),
-            WordEntity(
-                id = "nurse", english = "nurse", turkish = "hemşire", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person trained to care for sick or injured people, especially in hospital.",
-                turkishDefinition = "Özellikle hastanede hasta veya yaralı insanlara bakmak üzere eğitilmiş kimse.",
-                exampleSentence = "The friendly nurse checked my body temperature.",
-                exampleTranslation = "Güler yüzlü hemşire vücut sıcaklığımı kontrol etti.", phonetic = "/nɜːs/",
-                synonyms = "caregiver", antonyms = "", themes = "jobs"
-            ),
-            WordEntity(
-                id = "police", english = "police", turkish = "polis", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "The civil force of a state, responsible for enforcing laws.",
-                turkishDefinition = "Bir devletin yasaları uygulamakla görevli sivil gücü.",
-                exampleSentence = "Call the police if you witness an accident.",
-                exampleTranslation = "Bir kazaya tanık olursanız polisi arayın.", phonetic = "/pəˈliːs/",
-                synonyms = "cop, law enforcement", antonyms = "", themes = "jobs"
-            ),
-            WordEntity(
-                id = "cook", english = "cook", turkish = "aşçı", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person who prepares food for eating.",
-                turkishDefinition = "Yemek yemek için yiyecek hazırlayan kimse.",
-                exampleSentence = "The professional cook prepared a delicious fish dish.",
-                exampleTranslation = "Profesyonel aşçı lezzetli bir balık yemeği hazırladı.", phonetic = "/kʊk/",
-                synonyms = "chef", antonyms = "", themes = "jobs"
-            ),
-            WordEntity(
-                id = "driver", english = "driver", turkish = "sürücü", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person who drives a vehicle like a car or bus.",
-                turkishDefinition = "Araba veya otobüs gibi bir aracı kullanan kimse.",
-                exampleSentence = "The taxi driver knew all the shortcut roads.",
-                exampleTranslation = "Taksi sürücüsü tüm kestirme yolları biliyordu.", phonetic = "/ˈdraɪ.vər/",
-                synonyms = "chauffeur, motorist", antonyms = "passenger", themes = "jobs"
-            ),
-            WordEntity(
-                id = "builder", english = "builder", turkish = "inşaatçı", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person whose job is to construct houses or buildings.",
-                turkishDefinition = "İşi evler veya binalar inşa etmek olan kimse.",
-                exampleSentence = "The builders finished constructing the school in six months.",
-                exampleTranslation = "İnşaatçılar okulun yapımını altı ayda tamamladı.", phonetic = "/ˈbɪl.dər/",
-                synonyms = "contractor, mason", antonyms = "", themes = "jobs"
-            ),
-            WordEntity(
-                id = "pilot", english = "pilot", turkish = "pilot", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person who operates the flying controls of an aircraft.",
-                turkishDefinition = "Bir uçağın uçuş kontrollerini yöneten kimse.",
-                exampleSentence = "The pilot announced that the flight would be smooth.",
-                exampleTranslation = "Pilot uçuşun sorunsuz geçeceğini duyurdu.", phonetic = "/ˈpaɪ.lət/",
-                synonyms = "aviator", antonyms = "", themes = "jobs"
-            ),
-            WordEntity(
-                id = "lawyer", english = "lawyer", turkish = "avukat", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person who practices or studies law and defends clients.",
-                turkishDefinition = "Hukuk okuyan veya uygulayan ve müvekkillerini savunan kimse.",
-                exampleSentence = "We consulted a lawyer to read the house contract.",
-                exampleTranslation = "Ev sözleşmesini okumak için bir avukata danıştık.", phonetic = "/ˈlɔɪ.ər/",
-                synonyms = "attorney, counsel", antonyms = "", themes = "jobs"
-            ),
-            WordEntity(
-                id = "dentist", english = "dentist", turkish = "diş hekimi", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person qualified to treat diseases of the teeth.",
-                turkishDefinition = "Diş hastalıklarını tedavi etmeye yetkili kimse.",
-                exampleSentence = "I visit my dentist twice a year for cleanings.",
-                exampleTranslation = "Temizlik için diş hekimimi yılda iki kez ziyaret ederim.", phonetic = "/ˈden.tɪst/",
-                synonyms = "dental surgeon", antonyms = "", themes = "jobs"
-            ),
-            WordEntity(
-                id = "farmer", english = "farmer", turkish = "çiftçi", partOfSpeech = "noun", cefrLevel = "A2",
-                englishDefinition = "A person who owns or manages a farm.",
-                turkishDefinition = "Bir çiftliğe sahip olan veya yöneten kimse.",
-                exampleSentence = "The farmer grew organic wheat and corn.",
-                exampleTranslation = "Çiftçi organik buğday ve mısır yetiştirdi.", phonetic = "/ˈfɑː.mər/",
-                synonyms = "cultivator, grower", antonyms = "", themes = "jobs"
-            ),
-
-            // --- B1 LEVEL ---
-            // Animals (Hayvanlar)
-            WordEntity(
-                id = "monkey", english = "monkey", turkish = "maymun", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A clever wild animal with a long tail that climbs trees.",
-                turkishDefinition = "Ağaçlara tırmanan, uzun kuyruklu, zeki ve vahşi bir hayvan.",
-                exampleSentence = "The funny monkey was peeling a yellow banana.",
-                exampleTranslation = "Komik maymun sarı bir muzu soyuyordu.", phonetic = "/ˈmʌŋ.ki/",
-                synonyms = "primate", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "elephant", english = "elephant", turkish = "fil", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A very heavy wild mammal with grey skin, tusks, and a trunk.",
-                turkishDefinition = "Gri derili, fildişi dişli ve hortumlu, çok ağır ve vahşi bir memeli.",
-                exampleSentence = "Elephants are the largest living land animals.",
-                exampleTranslation = "Filler yaşayan en büyük kara hayvanlarıdır.", phonetic = "/ˈel.ɪ.fənt/",
-                synonyms = "pachyderm", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "dolphin", english = "dolphin", turkish = "yunus", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "An intelligent marine mammal with a beaklike snout.",
-                turkishDefinition = "Gaga şeklinde burnu olan zeki bir deniz memelisi.",
-                exampleSentence = "We watched a group of dolphins jumping near the boat.",
-                exampleTranslation = "Teknenin yakınında zıplayan bir yunus grubunu izledik.", phonetic = "/ˈdɒl.fɪn/",
-                synonyms = "marine mammal", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "eagle", english = "eagle", turkish = "kartal", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A large bird of prey with a curved beak and long wings.",
-                turkishDefinition = "Kıvrık gagalı ve uzun kanatlı, büyük bir yırtıcı kuş.",
-                exampleSentence = "The eagle flew high above the mountain tops.",
-                exampleTranslation = "Kartal dağ zirvelerinin üzerinde yükseklerde uçtu.", phonetic = "/ˈiː.ɡl̩/",
-                synonyms = "bird of prey", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "snake", english = "snake", turkish = "yılan", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A long, legless reptile, some of which are poisonous.",
-                turkishDefinition = "Bazıları zehirli olan, uzun ve bacakları olmayan bir sürüngen.",
-                exampleSentence = "A green snake crawled silently through the grass.",
-                exampleTranslation = "Yeşil bir yılan çimlerin arasından sessizce süründü.", phonetic = "/sneɪk/",
-                synonyms = "serpent", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "lion", english = "lion", turkish = "aslan", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A large, powerful cat that lives in prides and is called king of jungle.",
-                turkishDefinition = "Sürüler halinde yaşayan ve ormanın kralı olarak adlandırılan, büyük ve güçlü kedi.",
-                exampleSentence = "The male lion has a beautiful golden mane around his neck.",
-                exampleTranslation = "Erkek aslanın boynunun etrafında güzel altın rengi bir yelesi vardır.", phonetic = "/ˈlaɪ.ən/",
-                synonyms = "king of beasts", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "giraffe", english = "giraffe", turkish = "zürafa", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A large mammal with a very long neck and spotted skin.",
-                turkishDefinition = "Çok uzun boyunlu ve lekeli derili, büyük bir memeli.",
-                exampleSentence = "The giraffe reached up to eat leaves from the tall tree.",
-                exampleTranslation = "Zürafa yüksek ağaçtan yaprak yemek için yukarı doğru uzandı.", phonetic = "/dʒɪˈrɑːf/",
-                synonyms = "ruminant", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "shark", english = "shark", turkish = "köpekbalığı", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A large sea fish with sharp teeth and a dorsal fin.",
-                turkishDefinition = "Keskin dişleri ve sırt yüzgeci olan, büyük bir deniz balığı.",
-                exampleSentence = "Great white sharks are dangerous predators of the ocean.",
-                exampleTranslation = "Büyük beyaz köpekbalıkları okyanusun tehlikeli yırtıcılarıdır.", phonetic = "/ʃɑːk/",
-                synonyms = "marine predator", antonyms = "", themes = "animals"
-            ),
-
-            // Nature & Environment (Doğa)
-            WordEntity(
-                id = "nature", english = "nature", turkish = "doğa", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "The physical world collective, including plants, animals, and landscapes.",
-                turkishDefinition = "Bitkiler, hayvanlar ve manzaralar da dahil olmak üzere fiziksel dünyanın tamamı.",
-                exampleSentence = "We went for a walk to enjoy the beauty of nature.",
-                exampleTranslation = "Doğanın güzelliğinin tadını çıkarmak için yürüyüşe çıktık.", phonetic = "/ˈneɪ.tʃər/",
-                synonyms = "environment, countryside", antonyms = "urban", themes = "nature"
-            ),
-            WordEntity(
-                id = "mountain", english = "mountain", turkish = "dağ", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A very high, steep hill that rises above surrounding land.",
-                turkishDefinition = "Çevreleyen arazinin üzerinde yükselen, çok yüksek ve dik tepe.",
-                exampleSentence = "Mount Ararat is the highest mountain in Turkey.",
-                exampleTranslation = "Ağrı Dağı, Türkiye'deki en yüksek dağdır.", phonetic = "/ˈmaʊn.tɪn/",
-                synonyms = "peak, mount", antonyms = "valley", themes = "nature"
-            ),
-            WordEntity(
-                id = "river", english = "river", turkish = "nehir", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A large natural stream of water flowing in a channel to the sea.",
-                turkishDefinition = "Yatak içinde denize doğru akan, büyük ve doğal su akıntısı.",
-                exampleSentence = "They went fishing on the banks of the quiet river.",
-                exampleTranslation = "Sakin nehrin kıyısında balık tutmaya gittiler.", phonetic = "/ˈrɪv.ər/",
-                synonyms = "stream, brook", antonyms = "", themes = "nature"
-            ),
-            WordEntity(
-                id = "forest", english = "forest", turkish = "orman", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A large area covered chiefly with trees and undergrowth.",
-                turkishDefinition = "Esas olarak ağaçlar ve çalılarla kaplı geniş alan.",
-                exampleSentence = "Many wild animals live inside this dense pine forest.",
-                exampleTranslation = "Bu sık çam ormanının içinde birçok vahşi hayvan yaşıyor.", phonetic = "/ˈfɒr.ɪst/",
-                synonyms = "woods, jungle", antonyms = "desert", themes = "nature"
-            ),
-            WordEntity(
-                id = "island", english = "island", turkish = "ada", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A piece of land completely surrounded by water.",
-                turkishDefinition = "Etrafı tamamen suyla çevrili kara parçası.",
-                exampleSentence = "They sailed to a small tropical island in Greece.",
-                exampleTranslation = "Yunanistan'da küçük tropikal bir adaya yelken açtılar.", phonetic = "/ˈaɪ.lənd/",
-                synonyms = "isle", antonyms = "mainland", themes = "nature"
-            ),
-            WordEntity(
-                id = "ocean", english = "ocean", turkish = "okyanus", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A very large expanse of sea, in particular, each of the main areas of salt water.",
-                turkishDefinition = "Çok geniş deniz alanı, özellikle tuzlu suyun ana alanlarının her biri.",
-                exampleSentence = "The Atlantic Ocean lies between Europe and America.",
-                exampleTranslation = "Atlantik Okyanusu, Avrupa ile Amerika arasında yer alır.", phonetic = "/ˈəʊ.ʃən/",
-                synonyms = "sea, deep", antonyms = "", themes = "nature"
-            ),
-            WordEntity(
-                id = "desert", english = "desert", turkish = "çöl", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A barren, dry area of land with little water and sparse vegetation.",
-                turkishDefinition = "Az suyu ve seyrek bitki örtüsü olan çorak, kuru arazi parçası.",
-                exampleSentence = "The Sahara Desert is extremely hot during the day.",
-                exampleTranslation = "Sahra Çölü gün boyunca aşırı derecede sıcaktır.", phonetic = "/ˈdez.ət/",
-                synonyms = "wasteland", antonyms = "forest, wetland", themes = "nature"
-            ),
-            WordEntity(
-                id = "valley", english = "valley", turkish = "vadi", partOfSpeech = "noun", cefrLevel = "B1",
-                englishDefinition = "A low area of land between hills or mountains, typically with a river.",
-                turkishDefinition = "Tepeler veya dağlar arasında kalan, genellikle içinden nehir geçen alçak arazi.",
-                exampleSentence = "The small green village is located in a deep valley.",
-                exampleTranslation = "Küçük yeşil köy, derin bir vadide yer almaktadır.", phonetic = "/ˈvæl.i/",
-                synonyms = "canyon, dale", antonyms = "mountain, ridge", themes = "nature"
-            ),
-            // --- NEW A1 ADDITIONS ---
-            WordEntity(
-                id = "blue", english = "blue", turkish = "mavi", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "The color of the clear sky or the deep sea.",
-                turkishDefinition = "Açık gökyüzü veya derin denizin rengi.",
-                exampleSentence = "The sky is bright blue today.",
-                exampleTranslation = "Bugün gökyüzü parlak mavi.", phonetic = "/bluː/",
-                synonyms = "azure", antonyms = "", themes = "colors"
-            ),
-            WordEntity(
-                id = "red", english = "red", turkish = "kırmızı", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "The color of blood or a ripe tomato.",
-                turkishDefinition = "Kanın veya olgun bir domatesin rengi.",
-                exampleSentence = "She is wearing a beautiful red dress.",
-                exampleTranslation = "Güzel kırmızı bir elbise giyiyor.", phonetic = "/red/",
-                synonyms = "crimson", antonyms = "", themes = "colors"
-            ),
-            WordEntity(
-                id = "green", english = "green", turkish = "yeşil", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "The color of grass or leaves.",
-                turkishDefinition = "Çimlerin veya yaprakların rengi.",
-                exampleSentence = "The park is very green in the spring.",
-                exampleTranslation = "Park baharda çok yeşildir.", phonetic = "/ɡriːn/",
-                synonyms = "verdant", antonyms = "", themes = "colors"
-            ),
-            WordEntity(
-                id = "white", english = "white", turkish = "beyaz", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "The color of snow or milk.",
-                turkishDefinition = "Karın veya sütün rengi.",
-                exampleSentence = "The walls of the room are painted white.",
-                exampleTranslation = "Odanın duvarları beyaza boyanmış.", phonetic = "/waɪt/",
-                synonyms = "snowy", antonyms = "black", themes = "colors"
-            ),
-            WordEntity(
-                id = "black", english = "black", turkish = "siyah", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "The darkest color, like the night sky.",
-                turkishDefinition = "Gece gökyüzü gibi en koyu renk.",
-                exampleSentence = "He has a black cat named Midnight.",
-                exampleTranslation = "Midnight adında siyah bir kedisi var.", phonetic = "/blæk/",
-                synonyms = "dark", antonyms = "white", themes = "colors"
-            ),
-            WordEntity(
-                id = "cat", english = "cat", turkish = "kedi", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A small domesticated carnivorous mammal with soft fur.",
-                turkishDefinition = "Yumuşak kürklü, küçük evcil etçil memeli.",
-                exampleSentence = "The cat is sleeping on the sofa.",
-                exampleTranslation = "Kedi kanepede uyuyor.", phonetic = "/kæt/",
-                synonyms = "feline", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "dog", english = "dog", turkish = "köpek", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A common domesticated animal kept as a pet or for work.",
-                turkishDefinition = "Evcil hayvan olarak veya iş için beslenen yaygın bir hayvan.",
-                exampleSentence = "My dog loves to play with a ball.",
-                exampleTranslation = "Köpeğim topla oynamayı çok seviyor.", phonetic = "/dɒɡ/",
-                synonyms = "canine", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "bird", english = "bird", turkish = "kuş", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A warm-blooded egg-laying vertebrate with feathers and wings.",
-                turkishDefinition = "Tüyleri ve kanatları olan, sıcakkanlı yumurtlayan omurgalı.",
-                exampleSentence = "A small bird is singing in the tree.",
-                exampleTranslation = "Ağaçta küçük bir kuş şarkı söylüyor.", phonetic = "/bɜːd/",
-                synonyms = "fowl", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "fish", english = "fish", turkish = "balık", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A limbless cold-blooded animal with gills and fins living in water.",
-                turkishDefinition = "Suda yaşayan, solungaçlı ve yüzgeçli, bacaksız soğukkanlı hayvan.",
-                exampleSentence = "The fish are swimming in the aquarium.",
-                exampleTranslation = "Balıklar akvaryumda yüzüyorlar.", phonetic = "/fɪʃ/",
-                synonyms = "marine life", antonyms = "", themes = "animals"
-            ),
-            WordEntity(
-                id = "car", english = "car", turkish = "araba", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A road vehicle, typically with four wheels, powered by an engine.",
-                turkishDefinition = "Genellikle dört tekerlekli, bir motorla çalışan yol aracı.",
-                exampleSentence = "He drives a red car to work.",
-                exampleTranslation = "İşe kırmızı bir araba sürüyor.", phonetic = "/kɑːr/",
-                synonyms = "automobile", antonyms = "", themes = "transport"
-            ),
-            WordEntity(
-                id = "bus", english = "bus", turkish = "otobüs", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A large motor vehicle carrying passengers by road.",
-                turkishDefinition = "Yol üzerinden yolcu taşıyan büyük motorlu araç.",
-                exampleSentence = "The school bus arrives at eight o'clock.",
-                exampleTranslation = "Okul otobüsü saat sekizde geliyor.", phonetic = "/bʌs/",
-                synonyms = "coach", antonyms = "", themes = "transport"
-            ),
-            WordEntity(
-                id = "plane", english = "plane", turkish = "uçak", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A powered flying vehicle with fixed wings.",
-                turkishDefinition = "Sabit kanatlı motorlu uçan araç.",
-                exampleSentence = "The plane flew over the mountains.",
-                exampleTranslation = "Uçak dağların üzerinden uçtu.", phonetic = "/pleɪn/",
-                synonyms = "airplane", antonyms = "", themes = "transport"
-            ),
-            WordEntity(
-                id = "sun", english = "sun", turkish = "güneş", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "The star around which the earth orbits and provides light.",
-                turkishDefinition = "Dünyanın etrafında döndüğü ve ışık sağlayan yıldız.",
-                exampleSentence = "The sun is shining brightly today.",
-                exampleTranslation = "Güneş bugün parlak bir şekilde parlıyor.", phonetic = "/sʌn/",
-                synonyms = "star", antonyms = "moon", themes = "nature"
-            ),
-            WordEntity(
-                id = "moon", english = "moon", turkish = "ay", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "The natural satellite of the earth, visible by night.",
-                turkishDefinition = "Dünyanın geceleri görülen doğal uydusu.",
-                exampleSentence = "The moon was full last night.",
-                exampleTranslation = "Dün gece ay dolunaydı.", phonetic = "/muːn/",
-                synonyms = "satellite", antonyms = "sun", themes = "nature"
-            ),
-            WordEntity(
-                id = "star", english = "star", turkish = "yıldız", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "A luminous point in the night sky.",
-                turkishDefinition = "Gece gökyüzündeki ışıklı nokta.",
-                exampleSentence = "The sky is full of stars tonight.",
-                exampleTranslation = "Bu gece gökyüzü yıldızlarla dolu.", phonetic = "/stɑːr/",
-                synonyms = "luminary", antonyms = "", themes = "nature"
-            ),
-            WordEntity(
-                id = "rain", english = "rain", turkish = "yağmur", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "Moisture condensed from the atmosphere that falls in separate drops.",
-                turkishDefinition = "Atmosferden yoğunlaşan ve ayrı damlalar halinde düşen nem.",
-                exampleSentence = "We need some rain for the flowers.",
-                exampleTranslation = "Çiçekler için biraz yağmura ihtiyacımız var.", phonetic = "/reɪn/",
-                synonyms = "precipitation", antonyms = "sunshine", themes = "nature"
-            ),
-            WordEntity(
-                id = "snow", english = "snow", turkish = "kar", partOfSpeech = "noun", cefrLevel = "A1",
-                englishDefinition = "Atmospheric water vapor frozen into ice crystals.",
-                turkishDefinition = "Buz kristallerine dönüşmüş atmosferik su buharı.",
-                exampleSentence = "The ground is covered with white snow.",
-                exampleTranslation = "Yer beyaz karla kaplı.", phonetic = "/snəʊ/",
-                synonyms = "ice crystals", antonyms = "", themes = "nature"
-            ),
-            WordEntity(
-                id = "hot", english = "hot", turkish = "sıcak", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Having a high temperature.",
-                turkishDefinition = "Yüksek sıcaklığa sahip.",
-                exampleSentence = "The soup is very hot.",
-                exampleTranslation = "Çorba çok sıcak.", phonetic = "/hɒt/",
-                synonyms = "warm, burning", antonyms = "cold", themes = "weather, basics"
-            ),
-            WordEntity(
-                id = "cold", english = "cold", turkish = "soğuk", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Having a low temperature.",
-                turkishDefinition = "Düşük sıcaklığa sahip.",
-                exampleSentence = "It is very cold in winter.",
-                exampleTranslation = "Kışın hava çok soğuktur.", phonetic = "/kəʊld/",
-                synonyms = "chilly, freezing", antonyms = "hot", themes = "weather, basics"
-            ),
-            WordEntity(
-                id = "small", english = "small", turkish = "küçük", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Of a size that is less than normal.",
-                turkishDefinition = "Normalden daha küçük olan.",
-                exampleSentence = "The mouse is a small animal.",
-                exampleTranslation = "Fare küçük bir hayvandır.", phonetic = "/smɔːl/",
-                synonyms = "little, tiny", antonyms = "big, large", themes = "basics"
-            ),
-            WordEntity(
-                id = "big", english = "big", turkish = "büyük", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Of considerable size or extent.",
-                turkishDefinition = "Önemli boyutta veya kapsamda.",
-                exampleSentence = "The elephant is a big animal.",
-                exampleTranslation = "Fil büyük bir hayvandır.", phonetic = "/bɪɡ/",
-                synonyms = "large, huge", antonyms = "small, little", themes = "basics"
-            ),
-            WordEntity(
-                id = "old", english = "old", turkish = "eski / yaşlı", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Having lived for a long time; or from the past.",
-                turkishDefinition = "Uzun süre yaşamış; veya geçmişten gelen.",
-                exampleSentence = "My grandfather is very old.",
-                exampleTranslation = "Büyükbabam çok yaşlı.", phonetic = "/əʊld/",
-                synonyms = "aged, ancient", antonyms = "new, young", themes = "basics"
-            ),
-            WordEntity(
-                id = "new", english = "new", turkish = "yeni", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Not existing before; made recently.",
-                turkishDefinition = "Daha önce var olmayan; yakın zamanda yapılmış.",
-                exampleSentence = "I bought a new phone yesterday.",
-                exampleTranslation = "Dün yeni bir telefon aldım.", phonetic = "/njuː/",
-                synonyms = "recent, fresh", antonyms = "old", themes = "basics"
-            ),
-            WordEntity(
-                id = "fast", english = "fast", turkish = "hızlı", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Moving or capable of moving at high speed.",
-                turkishDefinition = "Yüksek hızda hareket eden veya edebilen.",
-                exampleSentence = "The cheetah is a fast runner.",
-                exampleTranslation = "Çita hızlı bir koşucudur.", phonetic = "/fɑːst/",
-                synonyms = "quick, rapid", antonyms = "slow", themes = "basics"
-            ),
-            WordEntity(
-                id = "slow", english = "slow", turkish = "yavaş", partOfSpeech = "adjective", cefrLevel = "A1",
-                englishDefinition = "Moving or operating at a low speed.",
-                turkishDefinition = "Düşük hızda hareket eden veya çalışan.",
-                exampleSentence = "The turtle is very slow.",
-                exampleTranslation = "Kaplumbağa çok yavaştır.", phonetic = "/sləʊ/",
-                synonyms = "leisurely", antonyms = "fast", themes = "basics"
+        fun childFriendlyDefinition(id: String, tr: String, trDef: String): String {
+            val customHints = mapOf(
+                "apple" to "Meyve. Kırmızı, yeşil veya sarı olabilir; elde tutulup yenir.",
+                "banana" to "Meyve. Uzun ve sarıdır; kabuğu soyularak yenir.",
+                "orange" to "Meyve. Turuncu renklidir; suyu da içilir.",
+                "grape" to "Meyve. Küçük taneler halinde salkımda olur.",
+                "lemon" to "Meyve. Sarıdır ve tadı ekşidir.",
+                "strawberry" to "Meyve. Kırmızıdır, üstünde minik noktalar vardır.",
+                "water" to "İçecek. Renksizdir; susayınca içilir.",
+                "milk" to "İçecek. Beyazdır; kahvaltıda içilebilir.",
+                "bread" to "Yiyecek. Kahvaltıda ve sandviçte kullanılır.",
+                "cheese" to "Yiyecek. Sütten yapılır; genelde kahvaltıda yenir.",
+                "egg" to "Yiyecek. Kabuğu vardır; haşlanabilir veya tavada pişer.",
+                "potato" to "Sebze. Toprağın altında büyür; kızartması yapılır.",
+                "tomato" to "Sebze. Kırmızıdır; salatada olur.",
+                "onion" to "Sebze. Kat kat kabuğu vardır; doğrarken göz yaşartabilir.",
+                "carrot" to "Sebze. Turuncudur; tavşanlarla akla gelir.",
+                "yellow" to "Renk. Güneş, limon ve muz bu renkte olabilir.",
+                "red" to "Renk. Elma, çilek ve kalp bu renkte olabilir.",
+                "green" to "Renk. Çimen, yaprak ve bazı elmalar bu renkte olabilir.",
+                "blue" to "Renk. Gökyüzü ve deniz bu renkte görünebilir.",
+                "black" to "Renk. Gece ve kömür gibi koyu renktir.",
+                "white" to "Renk. Kar, süt ve bulut gibi açık renktir.",
+                "cat" to "Hayvan. Miyavlar, evde yaşayabilir.",
+                "dog" to "Hayvan. Havlar, insanlarla oyun oynamayı sever.",
+                "bird" to "Hayvan. Kanatları vardır ve uçabilir.",
+                "fish" to "Hayvan. Suda yaşar ve yüzgeçleriyle yüzer.",
+                "school" to "Yer. Çocukların ders öğrendiği yerdir.",
+                "teacher" to "Kişi. Sınıfta ders anlatır ve yardımcı olur.",
+                "student" to "Kişi. Okula gider ve yeni şeyler öğrenir.",
+                "book" to "Nesne. Sayfaları vardır; okunur.",
+                "pen" to "Nesne. Yazı yazmak için kullanılır.",
+                "bag" to "Nesne. Kitap ve eşyaları taşımaya yarar."
             )
-        )
+
+            customHints[id]?.let { return it }
+            if (trDef.isBlank()) return "$tr kelimesini hatırlamak için resmine ve ipucuna bak."
+            return when (trDef.trim().trimEnd('.')) {
+                "Meyve" -> "Meyve. Rengi, şekli veya tadıyla tanıyabilirsin."
+                "Sebze" -> "Sebze. Yemeklerde veya salatada kullanılabilir."
+                "Sıvı", "Sıvı gıda" -> "İçecek. Bardakta içilebilir."
+                "Besin", "Temel gıda" -> "Yiyecek. Acıkınca yenir."
+                "Mobilya" -> "Ev eşyası. Evde veya sınıfta görebilirsin."
+                "Yazma aracı" -> "Okul eşyası. Yazı yazmaya yarar."
+                "Canlı varlık" -> "Canlı. Hareket edebilir, büyüyebilir veya yaşayabilir."
+                "Kafa" -> "Vücut bölümü. Başın üst kısmıdır."
+                "Çehre" -> "Vücut bölümü. Göz, burun ve ağız buradadır."
+                "Afiyet" -> "Sağlıklı olma durumu."
+                "Malumat" -> "Bir şeyi bilme ve öğrenme."
+                else -> trDef
+            }
+        }
+
+        fun addW(id: String, tr: String, pos: String = "noun", cefr: String? = null, trDef: String = "") {
+            val resolvedCefr = cefr ?: inferCefr(id, pos)
+            val friendlyDefinition = childFriendlyDefinition(id, tr, trDef)
+            words.add(WordEntity(
+                id = id, english = id, turkish = tr, partOfSpeech = pos, cefrLevel = resolvedCefr,
+                englishDefinition = "Çocuk ipucu: $friendlyDefinition",
+                turkishDefinition = friendlyDefinition,
+                exampleSentence = simpleExampleSentence(id, tr),
+                exampleTranslation = simpleExampleTranslation(id, tr),
+                phonetic = ""
+            ))
+        }
+
+        // --- BASICS ---
+        addW("hello", "merhaba", "interjection", "A1", "Selamlama sözü.")
+        addW("yes", "evet", "adverb", "A1", "Onay.")
+        addW("no", "hayır", "adverb", "A1", "Red.")
+        addW("thanks", "teşekkürler", "interjection", "A1", "Minnet.")
+        addW("please", "lütfen", "adverb", "A1", "Rica.")
+        addW("welcome", "hoşgeldiniz", "interjection", "A1", "Karşılama.")
+        addW("sorry", "üzgün", "adjective", "A1", "Pişmanlık.")
+        addW("happy", "mutlu", "adjective", "A1", "Sevinçli.")
+        addW("friend", "arkadaş", "noun", "A1", "Sevilen kişi.")
+        addW("today", "bugün", "noun", "A1", "Şu anki gün.")
+        addW("yesterday", "dün", "noun", "A1", "Geçmiş gün.")
+        addW("tomorrow", "yarın", "noun", "A1", "Gelecek gün.")
+        addW("night", "gece", "noun", "A1", "Karanlık vakit.")
+        addW("week", "hafta", "noun", "A1", "Yedi gün.")
+        addW("morning", "sabah", "noun", "A1", "Günün başlangıcı.")
+        addW("clock", "saat", "noun", "A1", "Zaman ölçer.")
+
+        // --- FAMILY ---
+        addW("family", "aile", "noun", "A1", "Akraba topluluğu.")
+        addW("father", "baba", "noun", "A1", "Erkek ebeveyn.")
+        addW("mother", "anne", "noun", "A1", "Kadın ebeveyn.")
+        addW("sister", "kız kardeş", "noun", "A1", "Kız kardeş.")
+        addW("brother", "erkek kardeş", "noun", "A1", "Erkek kardeş.")
+        addW("child", "çocuk", "noun", "A1", "Küçük insan.")
+        addW("baby", "bebek", "noun", "A1", "Çok küçük çocuk.")
+        addW("son", "oğul", "noun", "A1", "Erkek çocuk.")
+        addW("daughter", "kız evlat", "noun", "A1", "Kız çocuk.")
+        addW("boy", "oğlan", "noun", "A1", "Erkek çocuk.")
+        addW("girl", "kız", "noun", "A1", "Kız çocuk.")
+        addW("uncle", "amca", "noun", "A1", "Babanın kardeşi.")
+        addW("aunt", "teyze / hala", trDef = "Annenin veya babanın kız kardeşi.")
+        addW("cousin", "kuzen", trDef = "Amca, hala, teyze veya dayı çocuğu.")
+        addW("grandfather", "dede", trDef = "Büyükbaba.")
+        addW("grandmother", "anneanne / babaanne", trDef = "Büyükanne.")
+
+        // --- BODY PARTS ---
+        addW("body", "vücut", trDef = "Gövde.")
+        addW("head", "baş", trDef = "Kafa.")
+        addW("face", "yüz", trDef = "Çehre.")
+        addW("eye", "göz", trDef = "Görme organı.")
+        addW("ear", "kulak", trDef = "İşitme organı.")
+        addW("nose", "burun", trDef = "Koku alma organı.")
+        addW("mouth", "ağız", trDef = "Konuşma ve yemek organı.")
+        addW("hair", "saç", trDef = "Baştaki kıllar.")
+        addW("neck", "boyun", trDef = "Baş ile gövde arası.")
+        addW("shoulder", "omuz", trDef = "Kolun gövdeye birleştiği yer.")
+        addW("arm", "kol", trDef = "Omuzdan parmak ucuna kadar.")
+        addW("hand", "el", trDef = "Kolun ucu.")
+        addW("finger", "parmak", trDef = "Elin uzantısı.")
+        addW("leg", "bacak", trDef = "Kalçadan ayağa kadar.")
+        addW("knee", "diz", trDef = "Bacağın orta eklemi.")
+        addW("foot", "ayak", trDef = "Bacağın ucu.")
+        addW("toe", "ayak parmağı", trDef = "Ayağın uzantısı.")
+        addW("back", "sırt", trDef = "Gövdenin arka kısmı.")
+
+        // --- ANIMALS ---
+        addW("animal", "hayvan", trDef = "Canlı varlık.")
+        addW("cat", "kedi", trDef = "Evcil küçük hayvan.")
+        addW("dog", "köpek", trDef = "Evcil sadık hayvan.")
+        addW("bird", "kuş", trDef = "Uçan hayvan.")
+        addW("fish", "balık", trDef = "Suda yaşayan.")
+        addW("horse", "at", trDef = "Binek hayvanı.")
+        addW("cow", "inek", trDef = "Süt veren hayvan.")
+        addW("sheep", "koyun", trDef = "Yünlü hayvan.")
+        addW("pig", "domuz", trDef = "Pembe hayvan.")
+        addW("mouse", "fare", trDef = "Kemirgen.")
+        addW("rabbit", "tavşan", trDef = "Uzun kulaklı kemirgen.")
+        addW("lion", "aslan", trDef = "Ormanlar kralı.")
+        addW("tiger", "kaplan", trDef = "Çizgili büyük kedi.")
+        addW("elephant", "fil", trDef = "Hortumlu büyük hayvan.")
+        addW("monkey", "maymun", trDef = "Ağaçta yaşayan zeki hayvan.")
+        addW("snake", "yılan", trDef = "Sürüngen.")
+        addW("spider", "örümcek", trDef = "Ağ ören böcek.")
+        addW("bee", "arı", trDef = "Bal yapan böcek.")
+        addW("butterfly", "kelebek", trDef = "Renkli kanatlı böcek.")
+        addW("shark", "köpekbalığı", trDef = "Deniz yırtıcısı.")
+        addW("dolphin", "yunus", trDef = "Zeki deniz memelisi.")
+
+        // --- FOOD & DRINK ---
+        addW("food", "yiyecek", trDef = "Besin.")
+        addW("drink", "içecek", trDef = "Sıvı gıda.")
+        addW("apple", "elma", trDef = "Meyve.")
+        addW("banana", "muz", trDef = "Meyve.")
+        addW("orange", "portakal", trDef = "Meyve.")
+        addW("grape", "üzüm", trDef = "Meyve.")
+        addW("lemon", "limon", trDef = "Ekşi meyve.")
+        addW("strawberry", "çilek", trDef = "Kırmızı meyve.")
+        addW("water", "su", trDef = "Sıvı.")
+        addW("milk", "süt", trDef = "Beyaz içecek.")
+        addW("bread", "ekmek", trDef = "Temel gıda.")
+        addW("cheese", "peynir", trDef = "Süt ürünü.")
+        addW("egg", "yumurta", trDef = "Protein kaynağı.")
+        addW("meat", "et", trDef = "Hayvan dokusu.")
+        addW("fish", "balık", trDef = "Suda yaşayan gıda.")
+        addW("chicken", "tavuk", trDef = "Kümes hayvanı eti.")
+        addW("sugar", "şeker", trDef = "Tatlı madde.")
+        addW("salt", "tuz", trDef = "Baharat.")
+        addW("tea", "çay", trDef = "Sıcak içecek.")
+        addW("coffee", "kahve", trDef = "Kafeinli içecek.")
+        addW("juice", "meyve suyu", trDef = "Sıkılmış meyve.")
+        addW("potato", "patates", trDef = "Sebze.")
+        addW("tomato", "domates", trDef = "Sebze.")
+        addW("onion", "soğan", trDef = "Sebze.")
+        addW("carrot", "havuç", trDef = "Sebze.")
+
+        // --- HOUSE & FURNITURE ---
+        addW("house", "ev", trDef = "Yaşanan bina.")
+        addW("home", "yuva", trDef = "Sıcak aile ortamı.")
+        addW("room", "oda", trDef = "Bölme.")
+        addW("kitchen", "mutfak", trDef = "Yemek yapılan yer.")
+        addW("bedroom", "yatak odası", trDef = "Uyunan yer.")
+        addW("bathroom", "banyo", trDef = "Temizlenilen yer.")
+        addW("door", "kapı", trDef = "Giriş.")
+        addW("window", "pencere", trDef = "Hava açıklığı.")
+        addW("floor", "yer / kat", trDef = "Zemin.")
+        addW("wall", "duvar", trDef = "Örtücü yapı.")
+        addW("table", "masa", trDef = "Mobilya.")
+        addW("chair", "sandalye", trDef = "Oturacak yer.")
+        addW("bed", "yatak", trDef = "Uyuma yeri.")
+        addW("sofa", "koltuk", trDef = "Rahat oturacak.")
+        addW("shelf", "raf", trDef = "Eşya koyma yeri.")
+        addW("lamp", "lamba", trDef = "Işık kaynağı.")
+        addW("carpet", "halı", trDef = "Yer örtüsü.")
+        addW("curtain", "perde", trDef = "Pencere örtüsü.")
+        addW("mirror", "ayna", trDef = "Yansıtıcı.")
+        addW("key", "anahtar", trDef = "Kapı, dolap veya kilit açmaya yarayan küçük araç.")
+
+        // --- KITCHEN ITEMS ---
+        addW("plate", "tabak", trDef = "Yemek kabı.")
+        addW("cup", "fincan / kupa", trDef = "İçecek kabı.")
+        addW("glass", "bardak", trDef = "Cam kap.")
+        addW("fork", "çatal", trDef = "Yemek aracı.")
+        addW("spoon", "kaşık", trDef = "Yemek aracı.")
+        addW("knife", "bıçak", trDef = "Kesme aracı.")
+        addW("pan", "tava", trDef = "Pişirme kabı.")
+        addW("fridge", "buzdolabı", trDef = "Soğutucu.")
+        addW("oven", "fırın", trDef = "Pişirici.")
+
+        // --- SCHOOL & WORK ---
+        addW("school", "okul", trDef = "Eğitim yeri.")
+        addW("teacher", "öğretmen", trDef = "Eğitimci.")
+        addW("student", "öğrenci", trDef = "Öğrenen.")
+        addW("book", "kitap", trDef = "Yazılı eser.")
+        addW("pen", "kalem", trDef = "Yazma aracı.")
+        addW("pencil", "kurşun kalem", trDef = "Yazma aracı.")
+        addW("paper", "kağıt", trDef = "Yazma zemini.")
+        addW("notebook", "defter", trDef = "Yazma kitabı.")
+        addW("desk", "sıra / çalışma masası", trDef = "Okul mobilyası.")
+        addW("bag", "çanta", trDef = "Taşıma aracı.")
+        addW("work", "iş", trDef = "Meslek.")
+        addW("job", "meslek", trDef = "Uğraş.")
+        addW("office", "ofis", trDef = "Çalışma yeri.")
+        addW("money", "para", trDef = "Ödeme aracı.")
+
+        // --- JOBS ---
+        addW("doctor", "doktor", trDef = "Sağlık uzmanı.")
+        addW("nurse", "hemşire", trDef = "Sağlık görevlisi.")
+        addW("pilot", "pilot", trDef = "Uçak kullanıcısı.")
+        addW("engineer", "mühendis", trDef = "Teknik uzman.")
+        addW("artist", "sanatçı", trDef = "Sanat yapan.")
+        addW("singer", "şarkıcı", trDef = "Şarkı söyleyen.")
+        addW("actor", "oyuncu", trDef = "Rol yapan.")
+        addW("lawyer", "avukat", trDef = "Hukukçu.")
+        addW("waiter", "garson", trDef = "Hizmet eden.")
+        addW("chef", "şef / aşçı", trDef = "Yemek uzmanı.")
+
+        // --- CLOTHES ---
+        addW("clothes", "kıyafetler", trDef = "Giysiler.")
+        addW("shirt", "gömlek", trDef = "Üst giysi.")
+        addW("pants", "pantolon", trDef = "Alt giysi.")
+        addW("dress", "elbise", trDef = "Kadın giysisi.")
+        addW("skirt", "etek", trDef = "Alt giysi.")
+        addW("shoes", "ayakkabı", trDef = "Ayak giysisi.")
+        addW("hat", "şapka", trDef = "Başlık.")
+        addW("socks", "çorap", trDef = "Ayak giysisi.")
+        addW("jacket", "ceket", trDef = "Üst giysi.")
+
+        // --- WEATHER ---
+        addW("weather", "hava", trDef = "Hava durumu.")
+        addW("sun", "güneş", trDef = "Gök cismi.")
+        addW("sunny", "güneşli", "adjective", trDef = "Hava açık.")
+        addW("rain", "yağmur", trDef = "Yağış.")
+        addW("rainy", "yağmurlu", "adjective", trDef = "Yağışlı hava.")
+        addW("cloud", "bulut", trDef = "Buhar kümesi.")
+        addW("cloudy", "bulutlu", "adjective", trDef = "Hava kapalı.")
+        addW("snow", "kar", trDef = "Beyaz yağış.")
+        addW("snowy", "karlı", "adjective", trDef = "Kar yağışlı.")
+        addW("wind", "rüzgar", trDef = "Hava akımı.")
+        addW("windy", "rüzgarlı", "adjective", trDef = "Esintili hava.")
+        addW("storm", "fırtına", trDef = "Şiddetli rüzgar.")
+        addW("hot", "sıcak", "adjective", trDef = "Yüksek ısı.")
+        addW("cold", "soğuk", "adjective", trDef = "Düşük ısı.")
+
+        // --- NATURE & PLACES ---
+        addW("nature", "doğa", trDef = "Tabiat.")
+        addW("tree", "ağaç", trDef = "Odunsu bitki.")
+        addW("grass", "çimen", trDef = "Yeşil bitki.")
+        addW("flower", "çiçek", trDef = "Renkli bitki.")
+        addW("sky", "gökyüzü", trDef = "Mavi tavan.")
+        addW("earth", "dünya", trDef = "Gezegenimiz.")
+        addW("world", "dünya", trDef = "Yaşadığımız yer.")
+        addW("river", "nehir", trDef = "Akarsu.")
+        addW("lake", "göl", trDef = "Durgun su.")
+        addW("sea", "deniz", trDef = "Büyük tuzlu su.")
+        addW("ocean", "okyanus", trDef = "Çok büyük deniz.")
+        addW("mountain", "dağ", trDef = "Yüksek tepe.")
+        addW("hill", "tepe", trDef = "Küçük yükselti.")
+        addW("island", "ada", trDef = "Etrafı suyla çevrili.")
+        addW("desert", "çöl", trDef = "Kum kumsalı.")
+        addW("forest", "orman", trDef = "Ağaç topluluğu.")
+        addW("city", "şehir", trDef = "Büyük yerleşim.")
+        addW("town", "kasaba", trDef = "Küçük şehir.")
+        addW("village", "köy", trDef = "Küçük yerleşim.")
+        addW("park", "park", trDef = "Yeşil alan.")
+        addW("street", "sokak", trDef = "Cadde.")
+        addW("road", "yol", trDef = "Güzergah.")
+        addW("bridge", "köprü", trDef = "Geçit.")
+        addW("bank", "banka", trDef = "Para kurumu.")
+        addW("hospital", "hastane", trDef = "Sağlık merkezi.")
+        addW("airport", "havalimanı", trDef = "Uçak terminali.")
+        addW("station", "istasyon", trDef = "Durak.")
+        addW("shop", "dükkan", trDef = "Mağaza.")
+        addW("market", "pazar", trDef = "Alışveriş yeri.")
+        addW("cinema", "sinema", trDef = "Film izleme yeri.")
+        addW("museum", "müze", trDef = "Sergi yeri.")
+
+        // --- TRANSPORT ---
+        addW("car", "araba", trDef = "Taşıt.")
+        addW("bus", "otobüs", trDef = "Vasıta.")
+        addW("train", "tren", trDef = "Vasıta.")
+        addW("plane", "uçak", trDef = "Uçar.")
+        addW("boat", "tekne", trDef = "Yüzer.")
+        addW("ship", "gemi", trDef = "Büyük yüzer.")
+        addW("bike", "bisiklet", trDef = "İki tekerlekli.")
+        addW("truck", "kamyon", trDef = "Yük taşıtı.")
+        addW("taxi", "taksi", trDef = "Taşıma aracı.")
+
+        // --- ADJECTIVES (OPPOSITES) ---
+        addW("big", "büyük", "adjective", "A1", "Hacimli.")
+        addW("small", "küçük", "adjective", "A1", "Ufak.")
+        addW("tall", "uzun", "adjective", "A2", "Boylu.")
+        addW("short", "kısa", "adjective", "A2", "Alçak.")
+        addW("long", "uzun", "adjective", "A1", "Mesafeli.")
+        addW("old", "eski / yaşlı", "adjective", "A1", "Yaşını almış.")
+        addW("new", "yeni", "adjective", "A1", "Taze.")
+        addW("fast", "hızlı", "adjective", "A1", "Süratli.")
+        addW("slow", "yavaş", "adjective", "A1", "Hantal.")
+        addW("heavy", "ağır", "adjective", "A2", "Tartıda fazla.")
+        addW("light", "hafif", "adjective", "A2", "Tartıda az.")
+        addW("rich", "zengin", "adjective", "A2", "Varlıklı.")
+        addW("poor", "fakir", "adjective", "A2", "Yoksul.")
+        addW("clean", "temiz", "adjective", "A2", "Pak.")
+        addW("dirty", "kirli", "adjective", "A2", "Pis.")
+        addW("full", "dolu", "adjective", "A2", "İçinde olan.")
+        addW("empty", "boş", "adjective", "A2", "İçinde olmayan.")
+        addW("hard", "zor / sert", "adjective", "A2", "Güçlük çıkaran.")
+        addW("easy", "kolay", "adjective", "A1", "Basit.")
+        addW("strong", "güçlü", "adjective", "A2", "Kuvvetli.")
+        addW("weak", "zayıf", "adjective", "A2", "Güçsüz.")
+        addW("beautiful", "güzel", "adjective", "A1", "Hoş.")
+        addW("ugly", "çirkin", "adjective", "A1", "Hoş olmayan.")
+
+        // --- VERBS ---
+        addW("eat", "yemek", "verb", trDef = "Beslenmek.")
+        addW("drink", "içmek", "verb", trDef = "Sıvı tüketmek.")
+        addW("sleep", "uyumak", "verb", trDef = "Dinlenmek.")
+        addW("wake", "uyanmak", "verb", trDef = "Uykudan kalkmak.")
+        addW("go", "gitmek", "verb", trDef = "İlerlemek.")
+        addW("come", "gelmek", "verb", trDef = "Varmak.")
+        addW("see", "görmek", "verb", trDef = "Bakmak.")
+        addW("look", "bakmak", "verb", trDef = "İncelemek.")
+        addW("watch", "izlemek", "verb", trDef = "Seyretmek.")
+        addW("listen", "dinlemek", "verb", trDef = "Kulak vermek.")
+        addW("hear", "duymak", "verb", trDef = "İşitmek.")
+        addW("speak", "konuşmak", "verb", trDef = "Laf etmek.")
+        addW("say", "söylemek", "verb", trDef = "Dile getirmek.")
+        addW("tell", "anlatmak", "verb", trDef = "Bilgi vermek.")
+        addW("ask", "sormak", "verb", trDef = "Sual sormak.")
+        addW("answer", "cevaplamak", "verb", trDef = "Yanıt vermek.")
+        addW("open", "açmak", "verb", trDef = "Aralamak.")
+        addW("close", "kapatmak", "verb", trDef = "Örtmek.")
+        addW("start", "başlamak", "verb", trDef = "Girişmek.")
+        addW("stop", "durmak", "verb", trDef = "Kesilmek.")
+        addW("play", "oynamak", "verb", trDef = "Eğlenmek.")
+        addW("buy", "almak", "verb", trDef = "Satın almak.")
+        addW("sell", "satmak", "verb", trDef = "Takas etmek.")
+        addW("pay", "ödemek", "verb", trDef = "Para vermek.")
+        addW("use", "kullanmak", "verb", trDef = "Faydalanmak.")
+        addW("make", "yapmak", "verb", trDef = "Oluşturmak.")
+        addW("do", "yapmak", "verb", trDef = "Eylemek.")
+        addW("take", "almak", "verb", trDef = "Götürmek.")
+        addW("give", "vermek", "verb", trDef = "Sunmak.")
+        addW("find", "bulmak", "verb", trDef = "Keşfetmek.")
+        addW("lose", "kaybetmek", "verb", trDef = "Yitirmek.")
+        addW("get", "almak / edinmek", "verb", trDef = "Sahip olmak.")
+        addW("put", "koymak", "verb", trDef = "Yerleştirmek.")
+        addW("read", "okumak", "verb", trDef = "Metni incelemek.")
+        addW("write", "yazmak", "verb", trDef = "Çiziktirmek.")
+        addW("run", "koşmak", "verb", trDef = "Hızlı gitmek.")
+        addW("walk", "yürümek", "verb", trDef = "Adım atmak.")
+        addW("jump", "zıplamak", "verb", trDef = "Atlamak.")
+        addW("swim", "yüzmek", "verb", trDef = "Suda ilerlemek.")
+        addW("drive", "sürmek", "verb", trDef = "Araç kullanmak.")
+        addW("fly", "uçmak", "verb", trDef = "Havada gitmek.")
+
+        // --- TIME ---
+        addW("time", "zaman", trDef = "Süre.")
+        addW("hour", "saat", trDef = "60 dakika.")
+        addW("minute", "dakika", trDef = "60 saniye.")
+        addW("second", "saniye", trDef = "Zaman birimi.")
+        addW("day", "gün", trDef = "24 saat.")
+        addW("month", "ay", trDef = "Zaman dilimi.")
+        addW("year", "yıl", trDef = "12 ay.")
+        addW("morning", "sabah", trDef = "Günün başı.")
+        addW("afternoon", "öğleden sonra", trDef = "Günün ortası.")
+        addW("evening", "akşam", trDef = "Günün sonu.")
+        addW("night", "gece", trDef = "Karanlık.")
+
+        // --- ADVANCED & MISC ---
+        addW("world", "dünya", cefr = "B1", trDef = "Gezegen.")
+        addW("space", "uzay", cefr = "B1", trDef = "Boşluk.")
+        addW("power", "güç", cefr = "A2", trDef = "Kuvvet.")
+        addW("future", "gelecek", cefr = "B1", trDef = "İstikbal.")
+        addW("hope", "umut", cefr = "B1", trDef = "Beklenti.")
+        addW("life", "hayat", cefr = "B1", trDef = "Yaşam.")
+        addW("peace", "barış", cefr = "B1", trDef = "Huzur.")
+        addW("dream", "rüya / hayal", cefr = "A2", trDef = "Düş.")
+        addW("love", "sevgi / aşk", trDef = "Sevme hissi.")
+        addW("hate", "nefret", trDef = "Sevmeme hissi.")
+
+        // --- FURNITURE & TOOLS ---
+        addW("stove", "ocak", trDef = "Pişirme yeri.")
+        addW("sink", "lavabo", trDef = "Yıkanma yeri.")
+        addW("cabinet", "dolap", trDef = "Eşya gözü.")
+        addW("bucket", "kova", trDef = "Su kabı.")
+        addW("brush", "fırça", trDef = "Temizlik aracı.")
+        addW("soap", "sabun", trDef = "Temizlik maddesi.")
+        addW("towel", "havlu", trDef = "Kurulanma bezi.")
+        addW("shampoo", "şampuan", trDef = "Saç temizleyici.")
+        addW("toothbrush", "diş fırçası", trDef = "Diş temizleyici.")
+        addW("hammer", "çekiç", trDef = "Vurma aleti.")
+        addW("saw", "testere", trDef = "Kesme aleti.")
+        addW("ladder", "merdiven", trDef = "Yükselme aracı.")
+
+        // --- SHAPES & DIRECTIONS ---
+        addW("circle", "daire", trDef = "Yuvarlak şekil.")
+        addW("square", "kare", trDef = "Dört kenarlı eşit şekil.")
+        addW("triangle", "üçgen", trDef = "Üç kenarlı şekil.")
+        addW("rectangle", "dikdörtgen", trDef = "Dört kenarlı şekil.")
+        addW("north", "kuzey", trDef = "Yön.")
+        addW("south", "güney", trDef = "Yön.")
+        addW("east", "doğu", trDef = "Yön.")
+        addW("west", "batı", trDef = "Yön.")
+        addW("left", "sol", trDef = "Yön.")
+        addW("right", "sağ", trDef = "Yön.")
+
+        // --- EMOTIONS & TRAITS ---
+        addW("angry", "kızgın", "adjective", trDef = "Sinirli.")
+        addW("surprised", "şaşırmış", "adjective", trDef = "Hayret etmiş.")
+        addW("bored", "sıkılmış", "adjective", trDef = "Bunaldı.")
+        addW("excited", "heyecanlı", "adjective", trDef = "Coşkulu.")
+        addW("scared", "korkmuş", "adjective", trDef = "Ürkmüş.")
+        addW("proud", "gururlu", "adjective", trDef = "Kıvançlı.")
+        addW("clever", "zeki", "adjective", trDef = "Akıllı.")
+        addW("stupid", "aptal", "adjective", trDef = "Aptalca.")
+        addW("shy", "utangaç", "adjective", trDef = "Sıkılgan.")
+        addW("lazy", "tembel", "adjective", trDef = "Üşengeç.")
+        addW("honest", "dürüst", "adjective", trDef = "Doğru sözlü.")
+        addW("funny", "komik", "adjective", trDef = "Güldüren.")
+
+        // --- MORE VERBS ---
+        addW("learn", "öğrenmek", "verb", trDef = "Bilgi edinmek.")
+        addW("study", "çalışmak", "verb", trDef = "Ders yapmak.")
+        addW("teach", "öğretmek", "verb", trDef = "Bilgi vermek.")
+        addW("think", "düşünmek", "verb", trDef = "Akıl yürütmek.")
+        addW("believe", "inanmak", "verb", trDef = "Güvenmek.")
+        addW("forget", "unutmak", "verb", trDef = "Hatırlamamak.")
+        addW("remember", "hatırlamak", "verb", trDef = "Anımsamak.")
+        addW("laugh", "gülmek", "verb", trDef = "Kahkaha atmak.")
+        addW("cry", "ağlamak", "verb", trDef = "Gözyaşı dökmek.")
+        addW("win", "kazanmak", "verb", trDef = "Galip gelmek.")
+        addW("lose", "kaybetmek", "verb", trDef = "Yitirmek.")
+        addW("fight", "savaşmak", "verb", trDef = "Dövüşmek.")
+        addW("help", "yardım etmek", "verb", trDef = "Destek olmak.")
+
+        // --- WORLD 4 & 5 SPECIFICS ---
+        addW("ancient", "antik", "adjective", trDef = "Çok eski.")
+        addW("glory", "şan", trDef = "Görkem.")
+        addW("prize", "ödül", trDef = "Mükafat.")
+        addW("last", "son", "adjective", trDef = "En sondaki.")
+        addW("end", "son", trDef = "Nihayet.")
+        addW("journey", "yolculuk", trDef = "Seyahat.")
+        addW("go", "gitmek", "verb", trDef = "İlerlemek.")
+        addW("master", "usta", trDef = "Ehli.")
+        addW("expert", "uzman", trDef = "Bilirkişi.")
+        addW("wise", "bilge", "adjective", trDef = "Akıllı.")
+        addW("smart", "zeki", "adjective", trDef = "Kavrayışlı.")
+        addW("know", "bilmek", "verb", trDef = "Tanımak.")
+        addW("past", "geçmiş", trDef = "Mazi.")
+        addW("large", "geniş", "adjective", trDef = "Büyük.")
+        addW("heavy", "ağır", "adjective", trDef = "Tartıda fazla.")
+        addW("open", "açmak", "verb", trDef = "Aralamak.")
+        addW("temple", "tapınak", trDef = "İbadethane.")
+        addW("pray", "dua etmek", "verb", trDef = "Yakarışta bulunmak.")
+        addW("peace", "barış", trDef = "Huzur.")
+        addW("desert", "çöl", trDef = "Kum kumsalı.")
+        addW("egypt", "mısır", trDef = "Mısır ülkesi.")
+        addW("top", "üst", trDef = "Tepe.")
+        addW("queen", "kraliçe", trDef = "Hükümdar kadın.")
+        addW("palace", "saray", trDef = "Görkemli bina.")
+        addW("rich", "zengin", "adjective", trDef = "Varlıklı.")
+        addW("sell", "satmak", "verb", trDef = "Takas etmek.")
+        addW("trader", "tüccar", trDef = "Tacir.")
+        addW("coin", "madeni para", trDef = "Metal para.")
+        addW("face", "yüz", trDef = "Çehre.")
+        addW("garden", "bahçe", trDef = "Yeşillik.")
+        addW("beautiful", "güzel", "adjective", trDef = "Hoş.")
+        addW("safe", "güvenli", "adjective", trDef = "Emin.")
+        addW("tunnel", "tünel", trDef = "Yeraltı yolu.")
+        addW("long", "uzun", "adjective", trDef = "Mesafeli.")
+        addW("deep", "derin", "adjective", trDef = "Engin.")
+        addW("tower", "kule", trDef = "Yüksek bina.")
+        addW("map", "harita", trDef = "Çizim.")
+        addW("path", "yol", trDef = "Yolak.")
+        addW("find", "bulmak", "verb", trDef = "Keşfetmek.")
+        addW("way", "yol", trDef = "Yöntem.")
+        addW("search", "aramak", "verb", trDef = "Bulmaya çalışmak.")
+
+        // --- TECHNOLOGY & MEDIA ---
+        addW("computer", "bilgisayar", trDef = "Elektronik veri işleyici.")
+        addW("internet", "internet", trDef = "Genel ağ.")
+        addW("phone", "telefon", trDef = "İletişim aracı.")
+        addW("camera", "kamera", trDef = "Görüntü kaydedici.")
+        addW("screen", "ekran", trDef = "Görüntüleyici yüzey.")
+        addW("keyboard", "klavye", trDef = "Yazma tuş takımı.")
+        addW("mouse_tech", "fare (teknoloji)", trDef = "İşaretleme aygıtı.")
+        addW("email", "e-posta", trDef = "Elektronik mektup.")
+        addW("website", "web sitesi", trDef = "İnternet sayfası.")
+        addW("battery", "pil / batarya", trDef = "Enerji kaynağı.")
+        addW("television", "televizyon", trDef = "Görüntüleme cihazı.")
+        addW("radio", "radyo", trDef = "Sesli yayın aracı.")
+        addW("message", "mesaj", trDef = "İleti.")
+
+        // --- CLOTHING & ACCESSORIES ---
+        addW("coat", "kaban / palto", trDef = "Dış giysi.")
+        addW("tie", "kravat", trDef = "Boyun bağı.")
+        addW("gloves", "eldiven", trDef = "El giysisi.")
+        addW("scarf", "atkı", trDef = "Boyun örtüsü.")
+        addW("belt", "kemer", trDef = "Bel bağı.")
+        addW("wallet", "cüzdan", trDef = "Para kabı.")
+        addW("watch", "kol saati", trDef = "Zaman gösterici.")
+        addW("glasses", "gözlük", trDef = "Görme yardımcısı.")
+        addW("umbrella", "şemsiye", trDef = "Yağmurdan koruyucu.")
+        addW("purse", "el çantası", trDef = "Kadın çantası.")
+
+        // --- SPORTS & HOBBIES ---
+        addW("football", "futbol", trDef = "Ayak topu.")
+        addW("tennis", "tenis", trDef = "Raket oyunu.")
+        addW("basketball", "basketbol", trDef = "Pota topu.")
+        addW("swimming", "yüzme", trDef = "Suda ilerleme.")
+        addW("running", "koşu", trDef = "Hızlı yürüme.")
+        addW("dancing", "dans", trDef = "Ritmik hareket.")
+        addW("painting", "resim yapma", trDef = "Çizim sanatı.")
+        addW("singing", "şarkı söyleme", trDef = "Müzik icrası.")
+        addW("reading", "okuma", trDef = "Metin inceleme.")
+        addW("cooking", "yemek yapma", trDef = "Gıda hazırlama.")
+        addW("traveling", "seyahat", trDef = "Gezme.")
+
+        // --- ABSTRACT & ADVANCED CONCEPTS ---
+        addW("freedom", "özgürlük", cefr = "B1", trDef = "Hürriyet.")
+        addW("justice", "adalet", cefr = "B1", trDef = "Hak.")
+        addW("knowledge", "bilgi", cefr = "B1", trDef = "Malumat.")
+        addW("experience", "tecrübe", cefr = "B1", trDef = "Deneyim.")
+        addW("success", "başarı", cefr = "B1", trDef = "Muvaffakiyet.")
+        addW("failure", "başarısızlık", cefr = "B1", trDef = "Yetersizlik.")
+        addW("education", "eğitim", cefr = "B1", trDef = "Öğrenim.")
+        addW("health", "sağlık", cefr = "A2", trDef = "Afiyet.")
+        addW("government", "hükümet", cefr = "B1", trDef = "Yönetim.")
+        addW("society", "toplum", cefr = "B1", trDef = "Cemiyet.")
+        addW("culture", "kültür", cefr = "B1", trDef = "Ekin.")
+        addW("language", "dil", cefr = "A2", trDef = "Lisan.")
+        addW("power_abstract", "güç / erk", cefr = "B1", trDef = "Otorite.")
+
+        // --- FEELINGS & EMOTIONS ---
+        addW("joy", "sevinç", trDef = "Neşe.")
+        addW("fear", "korku", trDef = "Ürkü.")
+        addW("anger", "öfke", trDef = "Kızgınlık.")
+        addW("surprise", "sürpriz", trDef = "Şaşkınlık.")
+        addW("loneliness", "yalnızlık", trDef = "Tek başınalık.")
+        addW("excitement", "heyecan", trDef = "Coşku.")
+        addW("anxiety", "endişe", trDef = "Kaygı.")
+        addW("courage", "cesaret", trDef = "Yiğitlik.")
+        addW("patience", "sabır", trDef = "Tahammül.")
+
+        // --- TRAVEL & GEOGRAPHY ---
+        addW("border_geo", "sınır", trDef = "Hat.")
+        addW("coast", "sahil", trDef = "Kıyı.")
+        addW("continent", "kıta", trDef = "Anakara.")
+        addW("country", "ülke", trDef = "Memleket.")
+        addW("capital", "başkent", trDef = "Merkez şehir.")
+        addW("bridge_structure", "köprü", trDef = "Geçit.")
+        addW("valley_nature", "vadi", trDef = "Çukurluk.")
+        addW("canyon", "kanyon", trDef = "Dar vadi.")
+        addW("volcano", "yanardağ", trDef = "Lav püskürten dağ.")
+        addW("earthquake", "deprem", trDef = "Yer sarsıntısı.")
+
+        // --- COMMON ADVERBS ---
+        addW("always", "her zaman", "adverb", trDef = "Daima.")
+        addW("never", "asla", "adverb", trDef = "Hiçbir zaman.")
+        addW("sometimes", "bazen", "adverb", trDef = "Ara sıra.")
+        addW("often", "sık sık", "adverb", trDef = "Çok kez.")
+        addW("usually", "genellikle", "adverb", trDef = "Çoğunlukla.")
+        addW("quickly", "hızlıca", "adverb", trDef = "Süratle.")
+        addW("slowly", "yavaşça", "adverb", trDef = "Ağır ağır.")
+        addW("well_adv", "iyi", "adverb", trDef = "Güzelce.")
+        addW("badly", "kötü", "adverb", trDef = "Fenaca.")
+
+        // --- LEVEL COMPLETION WORDS ---
+        addW("account", "hesap", trDef = "Banka veya kullanıcı hesabı.")
+        addW("air", "hava", trDef = "Soluduğumuz gaz karışımı.")
+        addW("art", "sanat", trDef = "Duygu ve düşünceyi yaratıcı biçimde anlatma.")
+        addW("ball", "top", trDef = "Yuvarlak oyun aracı.")
+        addW("bat", "yarasa", trDef = "Gece uçan memeli.")
+        addW("beach", "plaj", trDef = "Deniz kıyısında kumluk yer.")
+        addW("bench", "bank", trDef = "Oturmak için uzun sıra.")
+        addW("best", "en iyi", "adjective", trDef = "En üstün olan.")
+        addW("black", "siyah", "adjective", trDef = "En koyu renk.")
+        addW("blow", "esmek", "verb", trDef = "Rüzgar hareket etmek.")
+        addW("blue", "mavi", "adjective", trDef = "Gökyüzü rengi.")
+        addW("border", "sınır", trDef = "İki yer arasındaki çizgi.")
+        addW("brave", "cesur", "adjective", trDef = "Korkmadan davranan.")
+        addW("burn", "yanmak", "verb", trDef = "Ateşle zarar görmek.")
+        addW("busy", "meşgul", "adjective", trDef = "İşi çok olan.")
+        addW("card", "kart", trDef = "Küçük sert kağıt veya ödeme aracı.")
+        addW("climb", "tırmanmak", "verb", trDef = "Yukarı doğru çıkmak.")
+        addW("cook", "pişirmek", "verb", trDef = "Yemek hazırlamak.")
+        addW("cross", "geçmek", "verb", trDef = "Bir yerin karşısına geçmek.")
+        addW("danger", "tehlike", trDef = "Zarar görme ihtimali.")
+        addW("dark", "karanlık", "adjective", trDef = "Işığı az olan.")
+        addW("down", "aşağı", "adverb", trDef = "Alt tarafa doğru.")
+        addW("dragon", "ejderha", trDef = "Masallarda geçen güçlü yaratık.")
+        addW("exit", "çıkış", trDef = "Dışarı çıkılan yer.")
+        addW("far", "uzak", "adjective", trDef = "Mesafesi çok olan.")
+        addW("feet", "ayaklar", trDef = "Ayak kelimesinin çoğulu.")
+        addW("film", "film", trDef = "Sinema eseri.")
+        addW("finish", "bitirmek", "verb", trDef = "Tamamlamak.")
+        addW("fire", "ateş", trDef = "Isı ve ışık veren yanma.")
+        addW("flag", "bayrak", trDef = "Bir ülke veya grubun simgesi.")
+        addW("fun", "eğlence", trDef = "Keyif veren durum.")
+        addW("game", "oyun", trDef = "Eğlenmek için yapılan etkinlik.")
+        addW("gate", "kapı", trDef = "Bahçe veya sur girişi.")
+        addW("giant", "dev", trDef = "Çok büyük varlık.")
+        addW("gold", "altın", trDef = "Değerli sarı metal.")
+        addW("green", "yeşil", "adjective", trDef = "Çimen rengi.")
+        addW("grey", "gri", "adjective", trDef = "Siyah ile beyaz arası renk.")
+        addW("ground", "zemin", trDef = "Üzerinde durulan yer.")
+        addW("high", "yüksek", "adjective", trDef = "Yukarıda olan.")
+        addW("history", "tarih", trDef = "Geçmiş olayların bilgisi.")
+        addW("hotel", "otel", trDef = "Konaklama yeri.")
+        addW("kind", "nazik", "adjective", trDef = "İyi ve düşünceli davranan.")
+        addW("king", "kral", trDef = "Erkek hükümdar.")
+        addW("land", "kara", trDef = "Deniz olmayan yeryüzü parçası.")
+        addW("legs", "bacaklar", trDef = "Bacak kelimesinin çoğulu.")
+        addW("letter", "harf", trDef = "Alfabe işareti.")
+        addW("library", "kütüphane", trDef = "Kitapların bulunduğu yer.")
+        addW("live", "yaşamak", "verb", trDef = "Hayatta olmak veya bir yerde oturmak.")
+        addW("man", "adam", trDef = "Yetişkin erkek.")
+        addW("move", "hareket etmek", "verb", trDef = "Yer değiştirmek.")
+        addW("movie", "film", trDef = "Sinema filmi.")
+        addW("nation", "millet", trDef = "Ortak kimliği olan halk.")
+        addW("noisy", "gürültülü", "adjective", trDef = "Çok sesli.")
+        addW("note", "not", trDef = "Kısa yazı.")
+        addW("over", "üzerinden", "preposition", trDef = "Bir şeyin üstünden.")
+        addW("paint", "boyamak", "verb", trDef = "Renk sürmek.")
+        addW("person", "kişi", trDef = "İnsan.")
+        addW("place", "yer", trDef = "Konum veya mekan.")
+        addW("platform", "peron", trDef = "Tren beklenen yükseltilmiş alan.")
+        addW("purple", "mor", "adjective", trDef = "Kırmızı ile mavi arası renk.")
+        addW("quick", "çabuk", "adjective", trDef = "Hızlı.")
+        addW("quiet", "sessiz", "adjective", trDef = "Gürültüsüz.")
+        addW("ready", "hazır", "adjective", trDef = "Başlamak için uygun durumda.")
+        addW("red", "kırmızı", "adjective", trDef = "Kan rengi.")
+        addW("rest", "dinlenmek", "verb", trDef = "Yorgunluğu gidermek.")
+        addW("ride", "binmek", "verb", trDef = "Taşıta veya bisiklete binmek.")
+        addW("rock", "kaya", trDef = "Büyük taş parçası.")
+        addW("round", "yuvarlak", "adjective", trDef = "Dairesel biçimde.")
+        addW("sad", "üzgün", "adjective", trDef = "Mutsuz.")
+        addW("save", "biriktirmek", "verb", trDef = "Korumak veya para saklamak.")
+        addW("seat", "koltuk", trDef = "Oturulan yer.")
+        addW("sick", "hasta", "adjective", trDef = "Sağlığı bozuk.")
+        addW("silver", "gümüş", trDef = "Değerli gri metal.")
+        addW("smoke", "duman", trDef = "Yanma sonucu çıkan gaz.")
+        addW("soft", "yumuşak", "adjective", trDef = "Sert olmayan.")
+        addW("sound", "ses", trDef = "Kulağın duyduğu titreşim.")
+        addW("star", "yıldız", trDef = "Gökte ışık saçan cisim.")
+        addW("statue", "heykel", trDef = "Taş veya metalden insan/nesne biçimi.")
+        addW("stone", "taş", trDef = "Sert mineral parçası.")
+        addW("summer", "yaz", trDef = "Sıcak mevsim.")
+        addW("sweat", "ter", trDef = "Vücuttan çıkan sıvı.")
+        addW("talk", "konuşmak", "verb", trDef = "Sözlü iletişim kurmak.")
+        addW("thunder", "gök gürültüsü", trDef = "Fırtınada duyulan güçlü ses.")
+        addW("ticket", "bilet", trDef = "Giriş veya yolculuk belgesi.")
+        addW("tired", "yorgun", "adjective", trDef = "Dinlenmeye ihtiyaç duyan.")
+        addW("travel", "seyahat etmek", "verb", trDef = "Bir yere yolculuk yapmak.")
+        addW("turkey", "Türkiye", trDef = "Bir ülke adı.")
+        addW("up", "yukarı", "adverb", trDef = "Üst tarafa doğru.")
+        addW("view", "manzara", trDef = "Bakınca görünen görüntü.")
+        addW("voice", "ses", trDef = "İnsanın çıkardığı ses.")
+        addW("wait", "beklemek", "verb", trDef = "Bir süre durmak.")
+        addW("wash", "yıkamak", "verb", trDef = "Su ile temizlemek.")
+        addW("well", "iyi", "adjective", trDef = "Sağlıklı veya uygun durumda.")
+        addW("wet", "ıslak", "adjective", trDef = "Su ile kaplanmış.")
+        addW("white", "beyaz", "adjective", trDef = "Kar rengi.")
+        addW("wing", "kanat", trDef = "Uçmayı sağlayan organ veya parça.")
+        addW("woman", "kadın", trDef = "Yetişkin dişi insan.")
+        addW("word", "kelime", trDef = "Anlamlı dil birimi.")
+        addW("yellow", "sarı", "adjective", trDef = "Güneş rengine yakın renk.")
+        addW("young", "genç", "adjective", trDef = "Yaşı küçük veya taze.")
+
+        return words
     }
+
+    private fun inferCefr(id: String, pos: String): String {
+        val normalized = id.lowercase()
+        if (normalized in a1Words) return "A1"
+        if (normalized in b1Words) return "B1"
+        if (normalized in a2Words) return "A2"
+
+        val lengthScore = when {
+            normalized.length >= 10 -> 2
+            normalized.length >= 7 -> 1
+            else -> 0
+        }
+        val posScore = when (pos) {
+            "preposition", "adverb", "verb" -> 1
+            else -> 0
+        }
+        val abstractScore = if (
+            normalized.endsWith("tion") ||
+            normalized.endsWith("ment") ||
+            normalized.endsWith("ness") ||
+            normalized.endsWith("ity") ||
+            normalized.endsWith("ence") ||
+            normalized.endsWith("ance")
+        ) 1 else 0
+
+        return when {
+            lengthScore + posScore + abstractScore >= 3 -> "B1"
+            lengthScore + posScore + abstractScore >= 1 -> "A2"
+            else -> "A1"
+        }
+    }
+
+    private fun simpleExampleSentence(id: String, tr: String): String {
+        return when (id) {
+            "apple" -> "I eat an apple."
+            "banana" -> "The banana is yellow."
+            "orange" -> "I drink orange juice."
+            "grape" -> "The grapes are small."
+            "lemon" -> "The lemon is sour."
+            "strawberry" -> "The strawberry is red."
+            "yellow" -> "The sun is yellow."
+            "red" -> "The apple is red."
+            "green" -> "The grass is green."
+            "blue" -> "The sky is blue."
+            "cat" -> "The cat is small."
+            "dog" -> "The dog runs."
+            "school" -> "I go to school."
+            "book" -> "I read a book."
+            else -> "This word means \"$tr\"."
+        }
+    }
+
+    private fun simpleExampleTranslation(id: String, tr: String): String {
+        return when (id) {
+            "apple" -> "Bir elma yerim."
+            "banana" -> "Muz sarıdır."
+            "orange" -> "Portakal suyu içerim."
+            "grape" -> "Üzümler küçüktür."
+            "lemon" -> "Limon ekşidir."
+            "strawberry" -> "Çilek kırmızıdır."
+            "yellow" -> "Güneş sarıdır."
+            "red" -> "Elma kırmızıdır."
+            "green" -> "Çimen yeşildir."
+            "blue" -> "Gökyüzü mavidir."
+            "cat" -> "Kedi küçüktür."
+            "dog" -> "Köpek koşar."
+            "school" -> "Okula giderim."
+            "book" -> "Kitap okurum."
+            else -> "Bu kelime \"$tr\" demektir."
+        }
+    }
+
+    private val a1Words = setOf(
+        "hello", "yes", "no", "thanks", "please", "welcome", "sorry", "happy", "friend",
+        "today", "yesterday", "tomorrow", "night", "week", "morning", "clock",
+        "family", "father", "mother", "sister", "brother", "child", "baby", "son", "daughter",
+        "boy", "girl", "body", "head", "face", "eye", "ear", "nose", "mouth", "hair",
+        "arm", "hand", "leg", "foot", "animal", "cat", "dog", "bird", "fish", "horse",
+        "cow", "sheep", "pig", "mouse", "rabbit", "food", "drink", "apple", "banana",
+        "orange", "water", "milk", "bread", "cheese", "egg", "meat", "tea", "coffee",
+        "house", "home", "room", "door", "window", "table", "chair", "bed", "key",
+        "school", "teacher", "student", "book", "pen", "bag", "work", "job", "money",
+        "shirt", "pants", "dress", "shoes", "hat", "sun", "rain", "snow", "hot", "cold",
+        "tree", "flower", "sky", "river", "sea", "city", "town", "park", "street",
+        "car", "bus", "train", "plane", "boat", "bike", "big", "small", "long", "old",
+        "new", "fast", "slow", "easy", "beautiful", "eat", "sleep", "go", "come",
+        "see", "look", "say", "open", "close", "start", "stop", "play", "buy", "use",
+        "read", "write", "run", "walk", "time", "day", "month", "year", "love", "hate"
+    )
+
+    private val a2Words = setOf(
+        "uncle", "aunt", "cousin", "grandfather", "grandmother", "shoulder", "finger",
+        "knee", "back", "lion", "tiger", "elephant", "monkey", "snake", "spider",
+        "bee", "butterfly", "shark", "dolphin", "grape", "lemon", "strawberry",
+        "chicken", "sugar", "salt", "juice", "potato", "tomato", "onion", "carrot",
+        "kitchen", "bedroom", "bathroom", "floor", "wall", "sofa", "shelf", "lamp",
+        "carpet", "curtain", "mirror", "plate", "glass", "fork", "spoon", "knife",
+        "pan", "fridge", "oven", "office", "doctor", "nurse", "pilot", "artist",
+        "singer", "actor", "waiter", "chef", "jacket", "weather", "sunny", "rainy",
+        "cloud", "cloudy", "snowy", "wind", "windy", "storm", "nature", "grass",
+        "earth", "world", "lake", "ocean", "mountain", "hill", "island", "forest",
+        "village", "road", "bridge", "bank", "shop", "market", "cinema", "museum",
+        "truck", "taxi", "tall", "short", "heavy", "light", "rich", "poor", "clean",
+        "dirty", "full", "empty", "hard", "strong", "weak", "ugly", "wake", "watch",
+        "listen", "hear", "speak", "tell", "ask", "answer", "sell", "pay", "make",
+        "do", "take", "give", "find", "lose", "get", "put", "jump", "swim", "drive",
+        "fly", "hour", "minute", "second", "afternoon", "evening", "power", "dream",
+        "health", "language", "joy", "fear", "anger", "country", "capital", "valley_nature",
+        "always", "never", "sometimes", "often", "usually", "quickly", "slowly",
+        "best", "black", "blue", "green", "grey", "red", "white", "yellow", "brave",
+        "busy", "danger", "dark", "far", "finish", "fire", "fun", "game", "high",
+        "hotel", "kind", "library", "move", "noisy", "quiet", "ready", "sad", "sick",
+        "soft", "sound", "star", "stone", "summer", "tired", "travel", "wait", "wash",
+        "well", "wet", "young"
+    )
+
+    private val b1Words = setOf(
+        "space", "future", "hope", "life", "peace", "freedom", "justice", "knowledge",
+        "experience", "success", "failure", "education", "government", "society", "culture",
+        "power_abstract", "loneliness", "excitement", "anxiety", "courage", "patience",
+        "continent", "border_geo", "coast", "canyon", "volcano", "earthquake", "account",
+        "ancient", "glory", "journey", "master", "expert", "wise", "smart", "temple",
+        "palace", "trader", "safe", "tunnel", "deep", "tower", "path", "way", "search",
+        "computer", "internet", "camera", "screen", "keyboard", "email", "website",
+        "battery", "television", "message", "umbrella", "football", "basketball",
+        "swimming", "running", "dancing", "painting", "singing", "reading", "cooking",
+        "traveling", "believe", "forget", "remember", "laugh", "cry", "fight", "help",
+        "history", "nation", "platform", "statue", "thunder"
+    )
 }

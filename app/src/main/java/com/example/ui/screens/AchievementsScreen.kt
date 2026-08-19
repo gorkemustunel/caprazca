@@ -1,4 +1,4 @@
-package com.example.ui.screens
+﻿package com.example.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
@@ -31,6 +31,16 @@ fun AchievementsScreen(viewModel: GameViewModel) {
     val unlockedCount = remember(achievements) { achievements.count { it.isUnlocked } }
     val progressRatio = remember(achievements, unlockedCount) {
         if (achievements.isEmpty()) 0f else unlockedCount.toFloat() / achievements.size.toFloat()
+    }
+    val sortedAchievements = remember(achievements) {
+        achievements.sortedWith(
+            compareByDescending<AchievementEntity> { it.isUnlocked }
+                .thenByDescending {
+                    if (it.targetValue <= 0) 0f else it.currentValue.toFloat() / it.targetValue.toFloat()
+                }
+                .thenBy { it.rarity }
+                .thenBy { it.title }
+        )
     }
 
     Scaffold(
@@ -112,7 +122,7 @@ fun AchievementsScreen(viewModel: GameViewModel) {
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 100.dp)
             ) {
-                items(achievements) { ach ->
+                items(sortedAchievements) { ach ->
                     AchievementItemRow(achievement = ach)
                 }
             }
@@ -124,6 +134,10 @@ fun AchievementsScreen(viewModel: GameViewModel) {
 fun AchievementItemRow(achievement: AchievementEntity) {
     val isUnlocked = achievement.isUnlocked
     val isSecretAndLocked = achievement.isSecret && !isUnlocked
+    val itemProgressRatio = remember(achievement.currentValue, achievement.targetValue) {
+        if (achievement.targetValue <= 0) 0f else (achievement.currentValue.toFloat() / achievement.targetValue.toFloat()).coerceIn(0f, 1f)
+    }
+    val isNearUnlock = !isUnlocked && !isSecretAndLocked && itemProgressRatio >= 0.7f
 
     val rarityColor = when (achievement.rarity) {
         "COMMON" -> EmeraldGreen
@@ -190,14 +204,14 @@ fun AchievementItemRow(achievement: AchievementEntity) {
                     )
 
                     // Unlocked Tag
-                    if (isUnlocked) {
+                    if (isUnlocked || isNearUnlock) {
                         Box(
                             modifier = Modifier
                                 .background(rarityColor.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = achievement.rarity,
+                                text = if (isUnlocked) achievement.rarity else "YAKIN",
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = rarityColor
@@ -216,7 +230,6 @@ fun AchievementItemRow(achievement: AchievementEntity) {
 
                 // Progress Indicator
                 if (!isUnlocked && !isSecretAndLocked) {
-                    val progressRatio = (achievement.currentValue.toFloat() / achievement.targetValue.toFloat()).coerceIn(0f, 1f)
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
@@ -229,7 +242,7 @@ fun AchievementItemRow(achievement: AchievementEntity) {
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .fillMaxWidth(progressRatio)
+                                    .fillMaxWidth(itemProgressRatio)
                                     .fillMaxHeight()
                                     .background(rarityColor, CircleShape)
                             )
@@ -240,6 +253,15 @@ fun AchievementItemRow(achievement: AchievementEntity) {
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Gray
+                        )
+                    }
+                    if (isNearUnlock) {
+                        Text(
+                            text = "Az kaldı, bu rozet açılmaya yakın.",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = rarityColor,
+                            modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                 }
