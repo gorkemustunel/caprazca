@@ -21,17 +21,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -44,27 +44,23 @@ import com.example.viewmodel.*
 import kotlinx.coroutines.launch
 import kotlin.math.sin
 
-// Theme Colors
-val CleanBgColor = Color(0xFFE6F6EE)
-val PathStoneColor1 = Color(0xFFB8BEC1)
-val PathStoneColor2 = Color(0xFFAEB5B8)
-val PathStoneColor3 = Color(0xFFC5C9CB)
-val PathStoneColor4 = Color(0xFF9FA7AA)
-val LevelNodeGreen = Color(0xFF2EBD8A)
-val WorldCardBg = Color(0xFFE8F5E9)
-val WorldCardBorder = Color(0xFF81C784)
-val TextDark = Color(0xFF2C3E50)
-val GrassGreen = Color(0xFF689F38)
+private val LevelNodeGreen = Color(0xFF1FB894)
+val TextDark = MapInk
 
-data class StoneData(
-    val progress: Float,
-    val lateralOffset: Float,
-    val width: Float,
-    val height: Float,
-    val rotation: Float,
-    val shapeVariant: Int,
-    val color: Color
+data class WorldBanner(
+    val title: String,
+    val subtitle: String,
+    val icon: ImageVector
 )
+
+private fun worldBannerForLevel(levelId: Int): WorldBanner? = when (levelId) {
+    1 -> WorldBanner("Dünya 1 · Yeşil Vadi", "İlk adımlar, ilk kelimeler", Icons.Filled.Park)
+    21 -> WorldBanner("Dünya 2 · Kristal Mağara", "Derinliklerde yeni kelimeler", Icons.Filled.Diamond)
+    41 -> WorldBanner("Dünya 3 · Lav Dağı", "Tempo yükseliyor", Icons.Filled.LocalFireDepartment)
+    61 -> WorldBanner("Dünya 4 · Gökyüzü Adaları", "Ufkunu genişlet", Icons.Filled.Cloud)
+    81 -> WorldBanner("Dünya 5 · Kayıp Şehir", "Bilgelik yolculuğu", Icons.Filled.AccountBalance)
+    else -> null
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,6 +105,7 @@ fun MapScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = Color.Transparent,
         topBar = {
             TopPlayerBar(progress, totalStars, completedCount, onBuyHeartClick = { viewModel.buyHeart() })
         }
@@ -119,23 +116,18 @@ fun MapScreen(
                 .padding(innerPadding)
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(
-                            Color(0xFFD8F1E7),
-                            Color(0xFFEAF7EF),
-                            Color(0xFFDCEFE5)
-                        )
+                        colors = listOf(MapBgTop, MapBgMid, MapBgBottom)
                     )
                 )
         ) {
-            // Background Layer
-            PrehistoricBackground(listState)
+            MapAtmosphere(listState)
 
             LazyColumn(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag("map_lazy_column"),
-                contentPadding = PaddingValues(top = 20.dp, bottom = 120.dp),
+                contentPadding = PaddingValues(top = 12.dp, bottom = 100.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(levels.size) { index ->
@@ -148,21 +140,18 @@ fun MapScreen(
                     val isCompleted = levelState?.completed == true
                     val stars = levelState?.stars ?: 0
 
-                    // World Banners
-                    if (level.id == 1) WorldHeaderCard("Dünya 1: Yeşil Vadi")
-                    else if (level.id == 41) WorldHeaderCard("Dünya 2: Kristal Mağara")
-                    else if (level.id == 76) WorldHeaderCard("Dünya 3: Lav Dağı")
+                    worldBannerForLevel(level.id)?.let { banner ->
+                        WorldHeaderCard(banner)
+                    }
 
-                    // Level Node Row with Dino
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 12.dp),
+                            .padding(vertical = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        // Place Dino next to current level
                         if (isCurrent) {
-                            val curveFactor = sin(level.id.toFloat() * 0.7f) * 70f
+                            val curveFactor = sin(level.id.toFloat() * 0.7f) * 56f
                             DinoMascot(
                                 stage = DinoStage.safeValueOf(progress?.dinoStage ?: "EGG"),
                                 completedLevels = completedCount,
@@ -170,19 +159,10 @@ fun MapScreen(
                                 modifier = Modifier
                                     .align(Alignment.Center)
                                     .offset(
-                                        x = (if (curveFactor > 0) curveFactor - 92 else curveFactor + 92).dp,
-                                        y = 12.dp
+                                        x = (if (curveFactor > 0) curveFactor - 88 else curveFactor + 88).dp,
+                                        y = 8.dp
                                     )
                                     .zIndex(2f)
-                            )
-                        }
-
-                        // Rare Egg Decoration
-                        if (level.id % 20 == 12) {
-                            DinoEggDecoration(
-                                modifier = Modifier
-                                    .align(if (level.id % 2 != 0) Alignment.CenterEnd else Alignment.CenterStart)
-                                    .padding(horizontal = 70.dp)
                             )
                         }
 
@@ -204,12 +184,10 @@ fun MapScreen(
                         )
                     }
 
-                    // Stone Path between levels
                     if (index < levels.size - 1) {
-                        StonePath(
+                        LevelTrail(
                             levelId = level.id,
-                            isPassed = level.id < currentLevelId,
-                            isCurrentPath = level.id == currentLevelId - 1 || level.id == currentLevelId
+                            isPassed = level.id < currentLevelId
                         )
                     }
                 }
@@ -217,7 +195,6 @@ fun MapScreen(
         }
     }
 
-    // Dialogs
     selectedLevelForDialog?.let { level ->
         LevelDetailsDialog(
             level = level,
@@ -263,7 +240,6 @@ fun MapScreen(
         ChestRewardsDialog(result, onDismiss = { claimedChestRewards = null })
     }
 
-    // Dino Evolution Celebration Dialog
     progress?.let { prog ->
         if (prog.lastEvolutionSeen == "PENDING_HATCHING") {
             DinoHatchingDialog(onNicknameChosen = { nickname ->
@@ -293,296 +269,213 @@ fun MapScreen(
 }
 
 @Composable
-fun PrehistoricBackground(listState: LazyListState) {
+fun MapAtmosphere(listState: LazyListState) {
     val scrollOffset = listState.firstVisibleItemIndex * 200 + listState.firstVisibleItemScrollOffset
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val hillColor = Color(0xFF7DBA84).copy(alpha = 0.13f)
-            val farHill = Path().apply {
-                moveTo(0f, size.height * 0.18f)
-                cubicTo(size.width * 0.25f, size.height * 0.08f, size.width * 0.45f, size.height * 0.28f, size.width * 0.72f, size.height * 0.15f)
-                cubicTo(size.width * 0.88f, size.height * 0.08f, size.width, size.height * 0.16f, size.width, size.height * 0.16f)
-                lineTo(size.width, 0f)
-                lineTo(0f, 0f)
-                close()
-            }
-            drawPath(farHill, hillColor)
-
-            repeat(18) { i ->
-                val x = ((i * 73) % size.width.toInt()).toFloat()
-                val y = ((i * 211 + scrollOffset / 3) % size.height.toInt()).toFloat()
-                drawOval(
-                    color = GrassGreen.copy(alpha = 0.08f),
-                    topLeft = Offset(x, y),
-                    size = Size(24.dp.toPx(), 10.dp.toPx())
-                )
-            }
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val farHill = Path().apply {
+            moveTo(0f, size.height * 0.22f)
+            cubicTo(
+                size.width * 0.28f, size.height * 0.12f,
+                size.width * 0.52f, size.height * 0.30f,
+                size.width * 0.78f, size.height * 0.16f
+            )
+            cubicTo(
+                size.width * 0.92f, size.height * 0.10f,
+                size.width, size.height * 0.18f,
+                size.width, size.height * 0.18f
+            )
+            lineTo(size.width, 0f)
+            lineTo(0f, 0f)
+            close()
         }
+        drawPath(farHill, MapHillFar.copy(alpha = 0.08f))
 
-        repeat(10) { i ->
-            val yPos = (i * 900).dp - (scrollOffset * 0.15f).dp
-            val isLeft = i % 2 == 0
+        val nearHill = Path().apply {
+            moveTo(0f, size.height * 0.78f)
+            cubicTo(
+                size.width * 0.2f, size.height * 0.70f,
+                size.width * 0.55f, size.height * 0.86f,
+                size.width, size.height * 0.72f
+            )
+            lineTo(size.width, size.height)
+            lineTo(0f, size.height)
+            close()
+        }
+        drawPath(nearHill, MapHillFar.copy(alpha = 0.06f))
 
-            Box(
-                modifier = Modifier
-                    .offset(x = if (isLeft) (-10).dp else 300.dp, y = yPos)
-                    .alpha(0.04f)
-            ) {
-                Icon(
-                    imageVector = when (i % 4) {
-                        0 -> Icons.Filled.Park
-                        1 -> Icons.Filled.HistoryEdu
-                        2 -> Icons.Filled.AutoAwesome
-                        else -> Icons.Filled.Terrain
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.size(120.dp),
-                    tint = TextDark
-                )
-            }
+        repeat(8) { i ->
+            val x = ((i * 97 + scrollOffset / 8) % size.width.toInt()).toFloat()
+            val y = ((i * 163) % (size.height * 0.7f).toInt()).toFloat() + size.height * 0.12f
+            drawCircle(
+                color = DinoMint.copy(alpha = 0.04f),
+                radius = 48.dp.toPx() + (i % 3) * 12.dp.toPx(),
+                center = Offset(x, y)
+            )
         }
     }
 }
 
 @Composable
-fun WorldHeaderCard(title: String) {
-    Card(
+fun WorldHeaderCard(banner: WorldBanner) {
+    Surface(
         modifier = Modifier
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = WorldCardBg),
-        border = BorderStroke(1.5.dp, WorldCardBorder)
+            .padding(horizontal = 20.dp, vertical = 14.dp)
+            .fillMaxWidth()
+            .shadow(
+                elevation = 2.dp,
+                shape = RoundedCornerShape(18.dp),
+                ambientColor = DeepEmerald.copy(alpha = 0.08f),
+                spotColor = DeepEmerald.copy(alpha = 0.10f)
+            ),
+        shape = RoundedCornerShape(18.dp),
+        color = MapSurface,
+        border = BorderStroke(1.dp, MapCardBorder.copy(alpha = 0.65f))
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            modifier = Modifier
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            MapAccentSoft.copy(alpha = 0.45f),
+                            MapSurface,
+                            MapSurface
+                        )
+                    )
+                )
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
-                    .background(DinoMint.copy(alpha = 0.15f), CircleShape),
+                    .size(42.dp)
+                    .background(
+                        Brush.linearGradient(
+                            listOf(DinoMint.copy(alpha = 0.22f), DeepEmerald.copy(alpha = 0.12f))
+                        ),
+                        CircleShape
+                    )
+                    .border(1.dp, DinoMint.copy(alpha = 0.28f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Filled.Pets, null, tint = DinoMint, modifier = Modifier.size(20.dp))
+                Icon(
+                    banner.icon,
+                    contentDescription = null,
+                    tint = DeepEmerald,
+                    modifier = Modifier.size(22.dp)
+                )
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(text = title, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = TextDark)
-                Text(text = "Minik Dino'nun ilk macerası", fontSize = 11.sp, color = TextDark.copy(alpha = 0.6f))
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = banner.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MapInk,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = banner.subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MapInkMuted
+                )
             }
         }
     }
 }
 
 @Composable
-fun StonePath(levelId: Int, isPassed: Boolean, isCurrentPath: Boolean) {
-    val stones = remember(levelId) {
-        val random = java.util.Random(levelId.toLong() * 37)
-        val stoneList = mutableListOf<StoneData>()
-        val count = 8 + random.nextInt(4)
-
-        for (i in 0 until count) {
-            stoneList.add(
-                StoneData(
-                    progress = i.toFloat() / count + (random.nextFloat() * 0.04f),
-                    lateralOffset = (random.nextFloat() - 0.5f) * 48f,
-                    width = 12f + random.nextFloat() * 8f,
-                    height = 9f + random.nextFloat() * 6f,
-                    rotation = random.nextFloat() * 360f,
-                    shapeVariant = random.nextInt(6),
-                    color = when(random.nextInt(4)) {
-                        0 -> PathStoneColor1
-                        1 -> PathStoneColor2
-                        2 -> PathStoneColor3
-                        else -> PathStoneColor4
-                    }
-                )
-            )
-        }
-        stoneList
-    }
-
-    val curve1 = sin(levelId.toFloat() * 0.7f) * 70f
-    val curve2 = sin((levelId + 1).toFloat() * 0.7f) * 70f
+fun LevelTrail(levelId: Int, isPassed: Boolean) {
+    val curve1 = sin(levelId.toFloat() * 0.7f) * 56f
+    val curve2 = sin((levelId + 1).toFloat() * 0.7f) * 56f
+    val trailColor = if (isPassed) MapPathActive else MapPathLocked
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp),
-        contentAlignment = Alignment.Center
+            .height(56.dp)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val startX = size.width / 2 + curve1.dp.toPx()
-            val endX = size.width / 2 + curve2.dp.toPx()
-            val startY = -5.dp.toPx()
-            val endY = 95.dp.toPx()
-            val cx = (startX + endX) / 2
+            val startX = size.width / 2f + curve1.dp.toPx()
+            val endX = size.width / 2f + curve2.dp.toPx()
+            val startY = 0f
+            val endY = size.height
+            val controlX = (startX + endX) / 2f
+            val controlY = size.height / 2f
 
-            stones.forEachIndexed { index, stone ->
-                val t = stone.progress
-                val bx = (1-t)*(1-t)*startX + 2*(1-t)*t*cx + t*t*endX
-                val by = startY + (endY - startY) * t
-
-                val dx = 2*(1-t)*(cx - startX) + 2*t*(endX - cx)
-                val dy = (endY - startY)
-                val mag = kotlin.math.sqrt(dx*dx + dy*dy).coerceAtLeast(0.1f).toFloat()
-                val nx = -dy / mag
-                val ny = dx / mag
-
-                val finalX = bx + nx * stone.lateralOffset
-                val finalY = by + ny * stone.lateralOffset
-
-                drawOrganicStone(stone, finalX, finalY, isPassed)
-
-                if (isCurrentPath && index % 4 == 0) {
-                    drawFootprint(finalX - 20f, finalY + 8f)
-                }
-
-                if (index % 7 == 0) {
-                    drawMiniGrass(finalX + 25f, finalY - 12f)
-                }
+            val path = Path().apply {
+                moveTo(startX, startY)
+                quadraticTo(controlX, controlY, endX, endY)
             }
+
+            // Soft outer glow for completed trail
+            if (isPassed) {
+                drawPath(
+                    path = path,
+                    color = MapPathActive.copy(alpha = 0.18f),
+                    style = Stroke(width = 14.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                )
+            }
+
+            drawPath(
+                path = path,
+                color = trailColor.copy(alpha = if (isPassed) 0.95f else 0.55f),
+                style = Stroke(
+                    width = 4.5.dp.toPx(),
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    pathEffect = if (isPassed) null else PathEffect.dashPathEffect(
+                        floatArrayOf(14.dp.toPx(), 10.dp.toPx()),
+                        0f
+                    )
+                )
+            )
+
+            // Subtle midpoint marker
+            val midT = 0.5f
+            val midX = (1 - midT) * (1 - midT) * startX + 2 * (1 - midT) * midT * controlX + midT * midT * endX
+            val midY = (1 - midT) * (1 - midT) * startY + 2 * (1 - midT) * midT * controlY + midT * midT * endY
+            drawCircle(
+                color = trailColor.copy(alpha = if (isPassed) 0.9f else 0.4f),
+                radius = 3.5.dp.toPx(),
+                center = Offset(midX, midY)
+            )
         }
     }
-}
-
-fun androidx.compose.ui.graphics.drawscope.DrawScope.drawOrganicStone(
-    stone: StoneData,
-    x: Float,
-    y: Float,
-    isPassed: Boolean
-) {
-    val path = Path()
-    val w = stone.width.dp.toPx()
-    val h = stone.height.dp.toPx()
-
-    when (stone.shapeVariant) {
-        0 -> {
-            path.moveTo(-w/2, 0f)
-            path.quadraticTo(-w/2, -h/2, 0f, -h/1.7f)
-            path.quadraticTo(w/2, -h/2.3f, w/2.1f, 0f)
-            path.quadraticTo(w/1.9f, h/2, 0f, h/2.2f)
-            path.quadraticTo(-w/2.2f, h/2.1f, -w/2, 0f)
-        }
-        1 -> {
-            path.moveTo(0f, -h/2)
-            path.quadraticTo(w/2.2f, h/2.4f, w/2.8f, h/2)
-            path.lineTo(-w/2.8f, h/2.1f)
-            path.quadraticTo(-w/2.2f, h/2.4f, 0f, -h/2)
-        }
-        2 -> {
-            path.moveTo(-w/3.5f, -h/2)
-            path.lineTo(w/3f, -h/2.3f)
-            path.lineTo(w/2.1f, h/2)
-            path.lineTo(-w/2.2f, h/1.8f)
-            path.close()
-        }
-        3 -> {
-            val s = 0.75f
-            path.moveTo(-w*s/2, -h*s/3)
-            path.lineTo(w*s/3, -h*s/2)
-            path.lineTo(w*s/2, h*s/4)
-            path.lineTo(-w*s/4, h*s/2)
-            path.close()
-        }
-        4 -> {
-            path.moveTo(-w/2, h/3)
-            path.lineTo(-w/3.2f, -h/2.2f)
-            path.quadraticTo(0f, -h/1.4f, w/2, 0f)
-            path.lineTo(w/3.5f, h/2.1f)
-            path.close()
-        }
-        else -> {
-            path.addOval(androidx.compose.ui.geometry.Rect(Offset(-w/2.2f, -h/2.5f), Size(w/2.4f, h/2.4f)))
-            path.addOval(androidx.compose.ui.geometry.Rect(Offset(w/12f, h/12f), Size(w/3.2f, h/3.2f)))
-        }
-    }
-
-    val baseColor = if (isPassed) stone.color.copy(0.6f) else stone.color
-
-    drawContext.canvas.save()
-    drawContext.canvas.translate(x, y)
-    drawContext.canvas.rotate(stone.rotation)
-
-    // Shadow
-    drawContext.canvas.translate(2.5f, 2.5f)
-    drawPath(path, Color.Black.copy(0.08f))
-    drawContext.canvas.translate(-2.5f, -2.5f)
-
-    // Fill
-    drawPath(path, baseColor)
-
-    // Top light highlight
-    drawPath(path, Color.White.copy(0.12f), style = Stroke(width = 2f))
-
-    drawContext.canvas.restore()
-}
-
-fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFootprint(x: Float, y: Float) {
-    val c = DinoMint.copy(0.25f)
-    drawCircle(c, radius = 5f, center = Offset(x, y))
-    drawCircle(c, radius = 3.5f, center = Offset(x - 6f, y - 5f))
-    drawCircle(c, radius = 3.5f, center = Offset(x + 6f, y - 5f))
-}
-
-fun androidx.compose.ui.graphics.drawscope.DrawScope.drawMiniGrass(x: Float, y: Float) {
-    val p = Path()
-    p.moveTo(0f, 0f)
-    p.quadraticTo(-4f, -12f, -8f, -18f)
-    p.moveTo(0f, 0f)
-    p.quadraticTo(0f, -15f, 2f, -22f)
-    p.moveTo(0f, 0f)
-    p.quadraticTo(4f, -10f, 10f, -16f)
-    drawContext.canvas.save()
-    drawContext.canvas.translate(x, y)
-    drawPath(p, GrassGreen.copy(0.35f), style = Stroke(width = 3f, cap = androidx.compose.ui.graphics.StrokeCap.Round))
-    drawContext.canvas.restore()
 }
 
 @Composable
 fun DinoMascot(stage: DinoStage, completedLevels: Int = 0, isFacingLeft: Boolean, modifier: Modifier = Modifier) {
-    val transition = rememberInfiniteTransition("dino")
-    val bounce by transition.animateFloat(0f, -6f, infiniteRepeatable(tween(900), RepeatMode.Reverse), "bounce")
+    val transition = rememberInfiniteTransition(label = "dino")
+    val bounce by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = -5f,
+        animationSpec = infiniteRepeatable(tween(1100, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        label = "bounce"
+    )
 
     Box(
         modifier = modifier
-            .width(72.dp)
-            .height(66.dp),
+            .width(76.dp)
+            .height(70.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .width(42.dp)
-                .height(9.dp)
+                .width(40.dp)
+                .height(8.dp)
                 .clip(CircleShape)
-                .background(Color.Black.copy(alpha = 0.10f))
+                .background(Color.Black.copy(alpha = 0.08f))
         )
         DinoCharacter(
-            size = 58.dp,
+            size = 60.dp,
             stage = stage,
             completedLevels = completedLevels,
             isFacingLeft = isFacingLeft,
             modifier = Modifier.offset(y = bounce.dp)
         )
-    }
-}
-
-@Composable
-fun DinoEggDecoration(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier.size(30.dp)) {
-        val w = size.width; val h = size.height
-        val p = Path().apply {
-            moveTo(w/2, 0f)
-            cubicTo(w*0.95f, 0f, w, h*0.65f, w/2, h)
-            cubicTo(0f, h*0.65f, w*0.05f, 0f, w/2, 0f)
-        }
-        drawPath(p, EggCream)
-        drawCircle(DinoMint.copy(0.3f), radius = w*0.18f, center = Offset(w*0.35f, h*0.45f))
-        drawCircle(DinoSpike.copy(0.3f), radius = w*0.12f, center = Offset(w*0.65f, h*0.65f))
     }
 }
 
@@ -595,84 +488,122 @@ fun LevelNode(
     stars: Int,
     onClick: () -> Unit
 ) {
-    val curveFactor = sin(level.id.toFloat() * 0.7f) * 70f
+    val curveFactor = sin(level.id.toFloat() * 0.7f) * 56f
+    val nodeSize = when {
+        isCurrent -> 72.dp
+        level.isBoss || level.isChest -> 64.dp
+        else -> 58.dp
+    }
 
     Column(
         modifier = Modifier
             .offset(x = curveFactor.dp)
-            .clickable(enabled = isUnlocked) { onClick() },
+            .clickable(enabled = isUnlocked, onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(contentAlignment = Alignment.Center) {
-            val nodeColor = if (isUnlocked) LevelNodeGreen else Color.LightGray
-
             if (isCurrent && !level.isChest) {
-                val transition = rememberInfiniteTransition("pulse")
-                val scale by transition.animateFloat(1f, 1.10f, infiniteRepeatable(tween(1100), RepeatMode.Reverse), "scale")
+                val transition = rememberInfiniteTransition(label = "pulse")
+                val scale by transition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.12f,
+                    animationSpec = infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+                    label = "scale"
+                )
                 Box(
                     modifier = Modifier
-                        .size(78.dp)
+                        .size(nodeSize + 18.dp)
                         .scale(scale)
-                        .border(1.5.dp, LevelNodeGreen.copy(0.28f), CircleShape)
+                        .border(1.5.dp, LevelNodeGreen.copy(alpha = 0.22f), CircleShape)
+                )
+                Box(
+                    modifier = Modifier
+                        .size(nodeSize + 8.dp)
+                        .background(LevelNodeGreen.copy(alpha = 0.10f), CircleShape)
+                )
+            }
+
+            val fillBrush = when {
+                !isUnlocked -> Brush.linearGradient(
+                    listOf(Color(0xFFCED9D3), MapNodeLocked)
+                )
+                isCurrent -> Brush.linearGradient(
+                    listOf(Color(0xFF4ED6AE), LevelNodeGreen, DeepEmerald)
+                )
+                isCompleted -> Brush.linearGradient(
+                    listOf(Color(0xFF3CC89A), DeepEmerald)
+                )
+                level.isChest -> Brush.linearGradient(
+                    listOf(Color(0xFFF6D06A), GoldenAmber, RichGold)
+                )
+                level.isBoss -> Brush.linearGradient(
+                    listOf(Color(0xFFFFB457), Color(0xFFE07A2F))
+                )
+                else -> Brush.linearGradient(
+                    listOf(Color(0xFF45CFA3), LevelNodeGreen)
                 )
             }
 
             Box(
                 modifier = Modifier
-                    .size(64.dp)
-                    .shadow(elevation = if (isCurrent) 7.dp else 4.dp, shape = CircleShape)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = if (isUnlocked) 0.34f else 0.18f),
-                                nodeColor
-                            )
-                        ),
-                        shape = CircleShape
+                    .size(nodeSize)
+                    .shadow(
+                        elevation = if (isCurrent) 10.dp else if (isUnlocked) 5.dp else 1.dp,
+                        shape = CircleShape,
+                        ambientColor = if (isUnlocked) LevelNodeGreen.copy(alpha = 0.28f) else Color.Black.copy(alpha = 0.06f),
+                        spotColor = if (isUnlocked) LevelNodeGreen.copy(alpha = 0.35f) else Color.Black.copy(alpha = 0.08f)
                     )
-                    .border(width = 2.dp, color = Color.White.copy(0.58f), shape = CircleShape)
-                    .border(width = 0.8.dp, color = nodeColor.copy(alpha = 0.45f), shape = CircleShape),
+                    .background(fillBrush, CircleShape)
+                    .border(
+                        width = 2.5.dp,
+                        color = Color.White.copy(alpha = if (isUnlocked) 0.72f else 0.35f),
+                        shape = CircleShape
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 val icon = when {
                     !isUnlocked -> Icons.Filled.Lock
-                    level.isChest -> Icons.Filled.Egg
+                    level.isChest -> Icons.Filled.CardGiftcard
                     isCurrent -> Icons.Filled.PlayArrow
                     isCompleted -> Icons.Filled.Check
                     level.isBoss -> Icons.Filled.EmojiEvents
-                    else -> Icons.Default.MenuBook
+                    else -> Icons.Filled.AutoStories
                 }
 
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (isCompleted && !isCurrent) Color.White.copy(0.8f) else if (!isUnlocked) Color.White.copy(0.7f) else Color.White,
+                    tint = Color.White.copy(alpha = if (isUnlocked) 1f else 0.75f),
                     modifier = Modifier.size(
                         when {
-                            level.isChest || level.isBoss -> 30.dp
-                            isCurrent -> 25.dp
+                            isCurrent -> 30.dp
+                            level.isChest || level.isBoss -> 28.dp
                             else -> 24.dp
                         }
                     )
                 )
             }
-
-            if (isCompleted && !level.isChest) {
-                Icon(Icons.Filled.CheckCircle, null, tint = Color.White.copy(0.82f), modifier = Modifier.size(18.dp).align(Alignment.BottomEnd).offset((-7).dp, (-7).dp))
-            }
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(level.theme, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (isUnlocked) TextDark else Color.Gray)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = if (level.isChest) "Sandık" else level.title,
+            style = MaterialTheme.typography.labelLarge,
+            color = if (isUnlocked) MapInk else MapInkMuted.copy(alpha = 0.7f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
 
         if (isUnlocked && !level.isChest) {
-            Row(horizontalArrangement = Arrangement.Center) {
+            Spacer(modifier = Modifier.height(3.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                 repeat(3) { i ->
                     Icon(
                         imageVector = if (i < stars) Icons.Filled.Star else Icons.Outlined.StarBorder,
                         contentDescription = null,
-                        tint = if (i < stars) GoldenAmber else Color.Gray.copy(alpha = 0.3f),
-                        modifier = Modifier.size(15.dp)
+                        tint = if (i < stars) GoldenAmber else MapPathLocked,
+                        modifier = Modifier.size(13.dp)
                     )
                 }
             }
@@ -681,51 +612,127 @@ fun LevelNode(
 }
 
 @Composable
-fun TopPlayerBar(progress: UserProgressEntity?, totalStars: Int, completedLevels: Int, onBuyHeartClick: () -> Unit) {
-    Surface(tonalElevation = 6.dp, shadowElevation = 3.dp, color = MaterialTheme.colorScheme.surface) {
+fun TopPlayerBar(
+    progress: UserProgressEntity?,
+    totalStars: Int,
+    completedLevels: Int,
+    onBuyHeartClick: () -> Unit
+) {
+    Surface(
+        color = MapSurface.copy(alpha = 0.96f),
+        shadowElevation = 1.dp,
+        tonalElevation = 0.dp
+    ) {
         Row(
-            modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(44.dp).background(DinoMint.copy(0.1f), CircleShape).border(2.dp, DinoMint, CircleShape), contentAlignment = Alignment.Center) {
-                    DinoCharacter(size = 34.dp, stage = DinoStage.safeValueOf(progress?.dinoStage ?: "EGG"), completedLevels = completedLevels)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f, fill = false)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .shadow(2.dp, CircleShape, ambientColor = DinoMint.copy(0.15f), spotColor = DinoMint.copy(0.2f))
+                        .background(MapAccentSoft, CircleShape)
+                        .border(1.5.dp, DinoMint.copy(alpha = 0.45f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    DinoCharacter(
+                        size = 32.dp,
+                        stage = DinoStage.safeValueOf(progress?.dinoStage ?: "EGG"),
+                        completedLevels = completedLevels
+                    )
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                Column {
-                    Text(progress?.username ?: "Çaprazca Gezgini", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Column(modifier = Modifier.widthIn(max = 140.dp)) {
+                    Text(
+                        text = progress?.username ?: "Çaprazca Gezgini",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MapInk,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
                     LinearProgressIndicator(
-                        progress = { (progress?.xp?.toFloat() ?: 0f) / ((progress?.level ?: 1) * 200f) },
-                        modifier = Modifier.width(60.dp).height(5.dp).clip(CircleShape),
+                        progress = { (progress?.xp?.toFloat() ?: 0f) / ((progress?.level ?: 1) * 200f).coerceAtLeast(1f) },
+                        modifier = Modifier
+                            .width(72.dp)
+                            .height(4.dp)
+                            .clip(CircleShape),
                         color = DinoMint,
-                        trackColor = Color.LightGray.copy(0.3f)
+                        trackColor = MapPathLocked.copy(alpha = 0.55f)
                     )
                 }
             }
-            Row {
-                StatBadge(Icons.Filled.Favorite, "${progress?.hearts ?: 5}", HeartRed, onBuyHeartClick)
-                Spacer(modifier = Modifier.width(8.dp))
-                StatBadge(Icons.Filled.Egg, "${progress?.coins ?: 0}", GoldenAmber)
-                Spacer(modifier = Modifier.width(8.dp))
-                StatBadge(Icons.Filled.Star, "$totalStars", GoldenAmber)
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                StatChip(
+                    icon = Icons.Filled.Favorite,
+                    value = "${progress?.hearts ?: 5}",
+                    tint = HeartRed,
+                    onClick = onBuyHeartClick
+                )
+                StatChip(
+                    icon = Icons.Filled.Egg,
+                    value = "${progress?.coins ?: 0}",
+                    tint = GoldenAmber
+                )
+                StatChip(
+                    icon = Icons.Filled.Star,
+                    value = "$totalStars",
+                    tint = GoldenAmber
+                )
             }
         }
     }
 }
 
 @Composable
-fun StatBadge(icon: ImageVector, value: String, color: Color, onClick: (() -> Unit)? = null) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = if (onClick != null) Modifier.clickable { onClick() } else Modifier) {
-        Icon(icon, null, tint = color, modifier = Modifier.size(18.dp))
-        Spacer(modifier = Modifier.width(2.dp))
-        Text(value, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, color = TextDark)
+fun StatChip(
+    icon: ImageVector,
+    value: String,
+    tint: Color,
+    onClick: (() -> Unit)? = null
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(MapStatChip)
+            .border(1.dp, MapCardBorder.copy(alpha = 0.55f), RoundedCornerShape(20.dp))
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(horizontal = 9.dp, vertical = 5.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(15.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = value,
+            style = MaterialTheme.typography.labelLarge,
+            color = MapInk,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun LevelDetailsDialog(level: PuzzleLevel, bestTime: Int?, onDismiss: () -> Unit, onPlayClick: () -> Unit, stage: DinoStage = DinoStage.EGG, completedLevels: Int = 0) {
+fun LevelDetailsDialog(
+    level: PuzzleLevel,
+    bestTime: Int?,
+    onDismiss: () -> Unit,
+    onPlayClick: () -> Unit,
+    stage: DinoStage = DinoStage.EGG,
+    completedLevels: Int = 0
+) {
     val avgLength = remember(level.wordIds) {
         level.wordIds.map { it.length }.average().takeIf { !it.isNaN() } ?: 0.0
     }
@@ -745,24 +752,53 @@ fun LevelDetailsDialog(level: PuzzleLevel, bestTime: Int?, onDismiss: () -> Unit
     }
 
     Dialog(onDismissRequest = onDismiss) {
-        Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                DinoCharacter(size = 80.dp, stage = stage, completedLevels = completedLevels)
-                Spacer(Modifier.height(12.dp))
-                Text("Bölüm ${level.levelNumber}", fontSize = 20.sp, fontWeight = FontWeight.Black)
-                Text(level.title, color = DinoMint, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(16.dp))
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = MapSurface),
+            border = BorderStroke(1.dp, MapCardBorder.copy(alpha = 0.6f)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(22.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                DinoCharacter(size = 76.dp, stage = stage, completedLevels = completedLevels)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "Bölüm ${level.levelNumber}",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MapInk
+                )
+                Text(
+                    level.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = DinoMint
+                )
+                Spacer(modifier = Modifier.height(18.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    DetailItem("Seviye", level.cefrLevel); DetailItem("Zorluk", difficulty); DetailItem("Süre", estimatedTime)
+                    DetailItem("Seviye", level.cefrLevel)
+                    DetailItem("Zorluk", difficulty)
+                    DetailItem("Süre", estimatedTime)
                 }
-                Spacer(Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    DetailItem("Kelime", "${level.wordIds.size}"); DetailItem("Ödül", "+${level.coinsReward}"); DetailItem("En İyi", bestTime?.let { formatCompletionTime(it) } ?: "--:--")
+                    DetailItem("Kelime", "${level.wordIds.size}")
+                    DetailItem("Ödül", "+${level.coinsReward}")
+                    DetailItem("En İyi", bestTime?.let { formatCompletionTime(it) } ?: "--:--")
                 }
-                Spacer(Modifier.height(16.dp))
-                Text("Bölüm özeti", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextDark)
-                Spacer(Modifier.height(8.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Bölüm özeti",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MapInk
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     AssistChip(
                         onClick = {},
                         label = { Text("${level.wordIds.size} gizli kelime", fontSize = 10.sp) },
@@ -782,18 +818,136 @@ fun LevelDetailsDialog(level: PuzzleLevel, bestTime: Int?, onDismiss: () -> Unit
                         border = BorderStroke(1.dp, GoldenAmber.copy(alpha = 0.2f))
                     )
                 }
-                Spacer(Modifier.height(24.dp))
-                Button(onClick = onPlayClick, modifier = Modifier.fillMaxWidth().height(48.dp), colors = ButtonDefaults.buttonColors(containerColor = DinoMint), shape = RoundedCornerShape(10.dp)) {
-                    Text("MACERAYA BAŞLA", fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(22.dp))
+                Button(
+                    onClick = onPlayClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .shadow(6.dp, RoundedCornerShape(14.dp), ambientColor = DinoMint.copy(0.3f), spotColor = DinoMint.copy(0.4f)),
+                    colors = ButtonDefaults.buttonColors(containerColor = DinoMint),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Maceraya Başla", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
-                TextButton(onClick = onDismiss) { Text("Kapat", color = Color.Gray) }
+                TextButton(onClick = onDismiss) {
+                    Text("Kapat", color = MapInkMuted)
+                }
             }
         }
     }
 }
 
-@Composable fun DetailItem(l: String, v: String) { Column(horizontalAlignment = Alignment.CenterHorizontally) { Text(l, fontSize = 11.sp, color = Color.Gray); Text(v, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TextDark) } }
+@Composable
+fun DetailItem(l: String, v: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(l, style = MaterialTheme.typography.labelMedium, color = MapInkMuted)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(v, style = MaterialTheme.typography.titleSmall, color = MapInk, fontWeight = FontWeight.Bold)
+    }
+}
 
-@Composable fun NoHeartsDialog(onDismiss: () -> Unit, onBuyHeart: () -> Unit, onFreeHeart: () -> Unit) { AlertDialog(onDismissRequest = onDismiss, title = { Text("Canlar Tükendi!") }, text = { Text("Yeni bölüme başlamak için canın kalmadı. Her ${EconomyConfig.HEART_RESTORE_MINUTES} dakikada 1 can yenilenir; istersen günlük bonus canını alabilir veya altın yumurtayla can satın alabilirsin.") }, confirmButton = { Column { Button(onClick = onFreeHeart, modifier = Modifier.fillMaxWidth()) { Text("Günlük Bonus Can") }; Spacer(Modifier.height(8.dp)); Button(onClick = onBuyHeart, modifier = Modifier.fillMaxWidth()) { Text("Can Al (${EconomyConfig.HEART_COST})") } } }, dismissButton = { TextButton(onClick = onDismiss) { Text("Kapat") } }) }
+@Composable
+fun NoHeartsDialog(onDismiss: () -> Unit, onBuyHeart: () -> Unit, onFreeHeart: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = MapSurface,
+        title = { Text("Canlar Tükendi!", color = MapInk) },
+        text = {
+            Text(
+                "Yeni bölüme başlamak için canın kalmadı. Her ${EconomyConfig.HEART_RESTORE_MINUTES} dakikada 1 can yenilenir; istersen günlük bonus canını alabilir veya altın yumurtayla can satın alabilirsin.",
+                color = MapInkMuted
+            )
+        },
+        confirmButton = {
+            Column {
+                Button(onClick = onFreeHeart, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = DinoMint)) {
+                    Text("Günlük Bonus Can")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(onClick = onBuyHeart, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = GoldenAmber)) {
+                    Text("Can Al (${EconomyConfig.HEART_COST})")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Kapat", color = MapInkMuted) }
+        }
+    )
+}
 
-@Composable fun ChestRewardsDialog(result: ChestClaimResult, onDismiss: () -> Unit) { Dialog(onDismissRequest = onDismiss) { Card(shape = RoundedCornerShape(24.dp), border = BorderStroke(2.dp, GoldenAmber)) { Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.AutoAwesome, null, tint = GoldenAmber, modifier = Modifier.size(72.dp)); Text("Hazine Bulundu!", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold); Text("+${result.coinsEarned} Yumurta, +${result.xpEarned} XP", fontWeight = FontWeight.Bold); Spacer(Modifier.height(20.dp)); Button(onClick = onDismiss, colors = ButtonDefaults.buttonColors(containerColor = GoldenAmber)) { Text("Harika!", color = Color.White) } } } } }
+@Composable
+fun ChestRewardsDialog(result: ChestClaimResult, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = MapSurface),
+            border = BorderStroke(1.5.dp, GoldenAmber.copy(alpha = 0.7f))
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(Icons.Filled.AutoAwesome, null, tint = GoldenAmber, modifier = Modifier.size(64.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Hazine Bulundu!", style = MaterialTheme.typography.headlineMedium, color = MapInk)
+                Text(
+                    "+${result.coinsEarned} Yumurta, +${result.xpEarned} XP",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MapInkMuted
+                )
+                Box(modifier = Modifier.height(20.dp))
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(containerColor = GoldenAmber),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Harika!", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+// Backward-compatible aliases used by older call sites / tests
+@Composable
+fun PrehistoricBackground(listState: LazyListState) = MapAtmosphere(listState)
+
+@Composable
+fun WorldHeaderCard(title: String) {
+    WorldHeaderCard(
+        WorldBanner(
+            title = title,
+            subtitle = "Yolculuğuna devam et",
+            icon = Icons.Filled.Pets
+        )
+    )
+}
+
+@Composable
+fun StonePath(levelId: Int, isPassed: Boolean, isCurrentPath: Boolean) {
+    LevelTrail(levelId = levelId, isPassed = isPassed || isCurrentPath)
+}
+
+@Composable
+fun StatBadge(icon: ImageVector, value: String, color: Color, onClick: (() -> Unit)? = null) {
+    StatChip(icon = icon, value = value, tint = color, onClick = onClick)
+}
+
+@Composable
+fun DinoEggDecoration(modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier.size(28.dp)) {
+        val w = size.width
+        val h = size.height
+        val p = Path().apply {
+            moveTo(w / 2, 0f)
+            cubicTo(w * 0.95f, 0f, w, h * 0.65f, w / 2, h)
+            cubicTo(0f, h * 0.65f, w * 0.05f, 0f, w / 2, 0f)
+        }
+        drawPath(p, EggCream)
+        drawCircle(DinoMint.copy(0.3f), radius = w * 0.18f, center = Offset(w * 0.35f, h * 0.45f))
+        drawCircle(DinoSpike.copy(0.3f), radius = w * 0.12f, center = Offset(w * 0.65f, h * 0.65f))
+    }
+}
