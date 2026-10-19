@@ -8,6 +8,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
@@ -26,16 +27,16 @@ private val DarkColorScheme = darkColorScheme(
 
 private val LightColorScheme = lightColorScheme(
     primary = EmeraldGreen,
-    onPrimary = OffWhiteBackground,
+    onPrimary = Color.White,
     secondary = GoldenAmber,
     onSecondary = TextDarkGray,
     tertiary = SoftTeal,
     background = OffWhiteBackground,
-    surface = SoftGraySurface,
-    onBackground = TextDarkGray,
-    onSurface = TextDarkGray,
+    surface = MapSurface,
+    onBackground = MapInk,
+    onSurface = MapInk,
     surfaceVariant = SoftGraySurface,
-    onSurfaceVariant = TextDarkGray
+    onSurfaceVariant = MapInkMuted
 )
 
 @Composable
